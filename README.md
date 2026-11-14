@@ -1,66 +1,52 @@
-# Qəpik — Azərbaycan qiymət müqayisəsi platforması
+# Qəpik — Azərbaycan qiymət müqayisəsi
 
-Azərbaycan dilində, mobil və masaüstü üçün hazırlanmış qiymət müqayisəsi tətbiqi. React 19, Vinext/Vite, Cloudflare Worker və D1 verilənlər bazası.
+Azərbaycan mağazalarının qiymətlərini bir yerdə göstərən sayt. React 19 + Vinext (Vite), Node serveri və bir SQLite faylı. Xarici xidmət, Cloudflare və ya ayrıca baza serveri tələb olunmur.
 
-## Cari əhatə
+## Serverdə işə salmaq
 
-- 50 yerli mağaza/profil və loqoları; mağaza adı/domeni üzrə axtarış.
-- İrşad HTML adapteri, Baku Electronics Product JSON-LD oxuyucusu və Technomania rəsmi JSON feed-i.
-- Technomania: ilkin 235 məhsul, 423 rəng variantı. Feed-dəki stok qorunur; bütün variantlar stokda kimi təqdim edilmir.
-- Eyni variantın qiymət, çatdırılma və 6/12/18 aylıq taksit yekunu üzrə müqayisəsi.
-- Məhsul axtarışı, kateqoriyalar, filtrlər, səhifəli kataloq, variant seçimi və qiymət tarixçəsi.
-- Hesaba bağlı seçilmişlər və saytdaxili hədəf qiymət bildirişi.
-- Admin: D1-də qaldığı yerdən davam edən sitemap idxal növbəsi, kataloq, mağaza/təklif CRUD, mənbə yoxlama, rəsmi feed önizləmə/yeniləmə, JSON/CSV/XML idxalı, rəy moderasiyası, mağaza müraciəti, real keçid analitikası, əməliyyat jurnalı, sayt parametrləri.
+Node 22.13 və ya daha yeni versiya lazımdır.
 
-Mağaza kataloquna daxil olmaq qiymət inteqrasiyasının aktiv olması demək deyil. 13,404 aktiv məhsul/variantdan ibarət dərc edilmiş mənbə snapshot-u var. Techbar, Casio, Eurolux, SeeHome və Allstar açıq kataloqları, Soliton metadatası və yalnız mağaza nişanı təsdiqlənmiş Tap.az elanları da daxildir. Baku/MG/Ali & Nino/Bytelecom tam qiymət idxalı hələ bitməyib. Köhnə nümunə məhsullar ictimai kataloqda deaktiv edilib.
-
-## Lokal iş
-
-```text
-npm run dev
-npx tsc --noEmit
-npm run lint
-npm run format:check
-node scripts/verify-api.mjs
-node scripts/verify-extractors.mjs
-node scripts/verify-feed.mjs
-node scripts/verify-crawl-rules.mjs
-node scripts/verify-crawl-jobs.mjs
-node scripts/verify-crawl-recovery.mjs
-node scripts/verify-alinino.mjs
+```bash
+npm ci
+npm run build
+OWNER_EMAIL=sen@example.com PORT=3000 npm start
 ```
 
-`npm run start` hər işə düşəndə əvvəlcə `drizzle/` daxilindəki yeni SQL migration fayllarını lokal `.wrangler/state` bazasına tətbiq edir (`npm run db:migrate`), sonra layihədəki ilkin kataloqu bazaya yazır (`npm run db:seed`). Lokal `wrangler dev` cron işlətmədiyi üçün bu addım olmasa sayt 0 məhsul göstərir. İlk dəfə ~2 dəqiqə çəkir, sonrakı başlanğıclarda keçilir. Server yayımında migration-lar serverin D1 bazasına ayrıca tətbiq edilməlidir.
+- Baza `data/qepik.sqlite` faylıdır (yolu `DATABASE_PATH` ilə dəyişmək olar). İlk işə düşəndə cədvəllər yaranır və layihədəki ilkin kataloq bazaya yazılır.
+- `npm start` saytla birlikdə planlayıcını da işə salır: mağaza idxalları hər dəqiqə irəliləyir, Technomania rəsmi feed-i saatda bir oxunur. İdxalı söndürmək üçün `CRAWL=off`.
+- `OWNER_EMAIL`: admin panelini (`/admin`) yalnız bu e-poçtla qeydiyyatdan keçən hesab aktivləşdirə bilər. Təyin edilməyibsə admin heç kimə açılmır.
+- Sayt HTTPS arxasında (nginx/Caddy) işləməlidir; proksi `X-Forwarded-Proto` və `X-Real-IP` başlıqlarını ötürməlidir ki, sessiya kukisi `Secure` olsun və sorğu limiti müştəri üzrə işləsin.
+- Vəziyyətə baxmaq: `node scripts/status.mjs` (bazadakı qeydlər və hər mağaza idxalının gedişi).
+- Ehtiyat nüsxə: `data/` qovluğunu kopyalamaq kifayətdir.
 
-`verify-api.mjs` yalnız localhost bazasına müvəqqəti test məlumatı yazır. `sync-directory-local.mjs` və `verify-live.mjs` lokal ilkin məlumat alətləridir; production-a avtomatik tətbiq edilmir.
+Lokal iş üçün: `npm run dev` (port 5173), `npm run typecheck`, `npm run lint`.
+
+## Hesablar
+
+Qeydiyyat (`/qeydiyyat`), giriş (`/giris`) və hesab səhifəsi (`/hesab`) saytın özündədir. Şifrələr scrypt ilə heşlənir; brauzerdə yalnız təsadüfi sessiya nişanı (HttpOnly kuki), bazada isə onun SHA-256 heşi saxlanır. Telefon nömrələri +994 formatına gətirilir. Seçilmişlər, qiymət bildirişləri, rəylər və mağaza müraciətləri hesaba bağlıdır.
+
+Mağaza müraciəti (`/magaza-qeydiyyat`): şirkət adı, hüquqi ad və forma, VÖEN, əlaqə, sayt, kateqoriyalar, məhsul sayı, kataloq mənbəyi (sitemap, XML/JSON feed, CSV), çatdırılma şəhərləri və üsulu, ödəniş növləri. Müraciətin vəziyyəti hesab səhifəsində görünür, admin paneldə təsdiqlənir.
+
+## Məlumatın toplanması
+
+- `lib/crawl-sources.ts`: mağaza mənbələri (sitemap, kateqoriya səhifələri, WooCommerce Store API).
+- `lib/crawl-jobs.ts`: bazada saxlanan, qaldığı yerdən davam edən idxal işləri. Hər mağaza öz gecikməsi ilə, mağazalar bir-birindən asılı olmadan paralel oxunur; 429 gözlədilir, 403 və bot yoxlaması işi dayandırır.
+- `lib/extractor.ts`, `lib/html-products.ts`, `lib/irshad.ts`, `lib/listing-sources.ts`: məhsul səhifəsi və siyahı oxuyucuları. `robots.txt` qaydalarına əməl olunur; CAPTCHA və bot qoruması keçilmir.
+- `lib/feed-sync.ts`: Technomania rəsmi JSON feed-i.
+- `lib/product-matching.ts`: eyni modelin müxtəlif mağazalardakı təkliflərinin birləşdirilməsi.
+
+Bot qoruması olan mağazalar (hazırda kontakt.az, mgstore.az, smartelectronics.az) avtomatik oxunmur; onlar üçün rəsmi feed və ya mağaza müraciəti lazımdır.
 
 ## Mənbə quruluşu
 
-- `app/platform.tsx`: alıcı interfeysi.
-- `app/crawl-panel.tsx`, `lib/crawl-jobs.ts`: saxlanan idxal işi, paralel sorğu kilidi, 429 gözləməsi və 403 dayanması.
-- `app/admin.tsx`, `app/feed-panel.tsx`: admin paneli və rəsmi feed idarəetməsi.
-- `app/api/v1/[...path]/route.ts`: versiyalanmış API marşrutları, autentifikasiya və admin icazələri.
-- `lib/api/schemas.ts`, `lib/api/records.ts`: API-nin Zod sxemləri və D1 qeyd köməkçiləri.
-- `app/types.ts`: brauzerin gördüyü API cavab tipləri.
-- `worker/index.ts`: Worker girişi; `scheduled` handler-i idxal işlərini cron ilə irəlilədir.
-- `lib/technomania.ts`: rəsmi feed yoxlaması, rənglərin ayrılması və dəqiq məhsul uyğunlaşdırılması.
-- `lib/extractor.ts`: domen məhdudiyyətli məhsul səhifəsi oxuyucuları.
-- `lib/catalog.ts`, `lib/live-catalog.ts`: kataloq müqaviləsi və ilkin mənbəli məlumatlar.
-- `docs/`: bazar araşdırması, mənbə sübutları, dizayn sistemi və əməliyyat sənədləri.
-- `public/logos/`, `public/products/`: mağaza loqoları və ilkin məhsul şəkilləri.
+- `app/(shop)`, `app/shop/*`, `app/v2.css`: alıcı interfeysi (V2). `shell.tsx` başlıq, naviqasiya və marşrutlar; `home.tsx`, `listing.tsx`, `product.tsx`, `pages.tsx` səhifələr; `card.tsx` məhsul kartı.
+- `app/(panel)/admin`, `app/admin*.tsx`, `app/*-panel.tsx`: admin paneli. Öz stil faylları ilə ayrıca marşrutdur.
+- `app/api/v1/[...path]/route.ts`: API (kataloq, axtarış təklifləri, hesab, şəxsi siyahılar, admin).
+- `lib/db.ts`: SQLite bağlantısı və sxem. `lib/accounts.ts`: hesablar və sessiyalar. `lib/scheduler.ts`: planlayıcı.
+- `lib/catalog-query.ts`: serverdə süzmə, sıralama, oxşar məhsullar, qiyməti düşənlər.
+- `lib/seo.ts`, `lib/seo-sitemap.ts`: metadata, JSON-LD, sitemap, robots.
+- `scripts/verify-*.mjs`: oxuyucu, idxal, uyğunlaşdırma və SEO yoxlamaları.
 
-## Giriş və yayım
+## Silinə bilən köhnə fayllar
 
-Sayt hazırda lokalda işləyir. `npm run dev` zamanı `/giris` sabit yerli test hesabı ilə daxil edir, `/cixis` çıxarır (`scripts/vite/local-auth-plugin.ts`, yalnız localhost-dan gələn sorğulara cavab verir). Tətbiq hesabı `x-qepik-user-id`, `x-qepik-user-email`, `x-qepik-user-name` başlıqlarından oxuyur (`app/auth.ts`). Serverə keçiddə real giriş xidməti bu başlıqları brauzerdən gələn sorğulardan silməli və yalnız hesabı yoxladıqdan sonra özü yazmalıdır; `/giris` və `/cixis` marşrutlarını da o xidmət verməlidir. Kanonik domen `lib/seo.ts`-dəki `SITE_URL`-dir.
-
-`/admin` səhifəsində ilk aktivləşdirmə sahib hesabını admin kimi D1-də saxlayır. Bu tamamlanmadan giriş dairəsi genişləndirilməməlidir. `OWNER_EMAIL` mühit dəyişəni təyin olunarsa, sahib yerini yalnız həmin e-poçtlu hesab tuta bilər; təyin olunmayıbsa ilk aktivləşdirən hesab sahib olur.
-
-Yazma sorğuları (`POST`) başqa saytdan gələrsə rədd edilir: `Origin` başqa mənbədirsə və ya `Sec-Fetch-Site` `same-origin`/`none` deyilsə cavab 403-dür. Sonrakı admin yazmaları serverdə həmin identifikatora görə qorunur. Seçilmişlər və bildirişlər istifadəçi identifikatoruna bağlıdır.
-
-E-poçt/SMS/Telegram/push göndərişi və native iOS/Android tətbiqi hazırda qoşulmayıb. Feed admin panelindən real vaxtda yenilənir. Native tətbiq üçün `/api/v1` və dizayn tokenləri hazırdır; mobil web manifest mövcuddur.
-
-
-## İdxal növbəsi
-`/admin` → **Məlumat mənbələri** → **Sitemap-dən məhsul idxalı**. Mənbəni seçib işi başladın; panel hər sorğuda bir URL yoxlayır. Səhifə bağlansa mövqe D1-də qalır və Worker cron trigger-i (`* * * * *`) işi hər dəqiqə ~45 saniyəlik büdcə ilə davam etdirir; dayandırılmış və bloklanmış işlərə toxunmur. Cron yalnız hostinq `triggers.crons` konfiqurasiyasını tətbiq edirsə işləyir; lokal yoxlama üçün `wrangler dev --test-scheduled` və `/__scheduled` ünvanından istifadə edin. Eyni mənbə üçün yalnız bir tamamlanmamış iş yaradıla bilər. Mövcud dəqiq mənbə linki tanındıqda eyni məhsul/təklif yenilənir; qiyməti və variantı qeyri-müəyyən səhifə idxal edilmir.
-`0001_striped_electro.sql` metadata siyahıları üçün indeks və SQLite JSON ifadəsi ilə mənbə üzrə unikal iş indeksi yaradır. İfadə indeksi Drizzle generatorunun vergül sitatlama məhdudiyyətinə görə migration SQL-də açıq saxlanır.
-`verify-crawl-jobs.mjs` localhost-da Soliton işi üzrə bir real məhsulu yoxlayır və işi dayandırır; production bazasına toxunmur.
+Cloudflare/D1 dövründən qalan `worker/`, `db/`, `drizzle/`, `drizzle.config.ts`, `cloudflare-env.d.ts`, `next.config.ts`, `scripts/migrate-local.mjs`, `scripts/seed-local.mjs`, `scripts/local-env.mjs`, `scripts/tool-environment.mjs`, `scripts/run-framework.mjs`, `scripts/vite/` artıq istifadə olunmur və build-ə daxil deyil.

@@ -13,6 +13,7 @@ const eslintConfig = defineConfig([
       "@next/next/no-img-element": "off",
       // The storefront is one catch-all page that routes itself; plain links do full navigations on purpose.
       "@next/next/no-html-link-for-pages": "off",
+      "@next/next/no-location-assign-relative-destination": "off",
     },
   },
   globalIgnores(["dist/**", ".vinext/**", ".wrangler/**", ".runtime/**", "outputs/**", "work/**", "db/**", "worker/**", "drizzle.config.ts", "data/**"]),

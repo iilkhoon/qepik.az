@@ -182,20 +182,26 @@ export function extractBakuListing(html: string, pageUrl: string): ListingPage {
 // Category URLs to read from a listing source's sitemap; only leaf categories, so parent pages
 // do not re-list the same products.
 export function listingCategories(sourceId: string, urls: string[]) {
-  if (sourceId !== "baku") return [];
+  if (sourceId !== "baku" && sourceId !== "irshad") return [];
+  // irshad.az: /az/<department>/<category>[/<subcategory>]; service pages, campaigns and the
+  // open-box outlet are not part of the comparable catalog.
+  const irshad =
+    /^\/az\/(?!mehsullar|musteri-ucun|sirket|kampaniyalar|hediyye-kartlari|outlet|blog|xeberler)[a-z0-9-]+(?:\/[a-z0-9-]+){1,3}\/?$/;
   const cats = urls.filter((u) => {
     const p = new URL(u).pathname;
+    if (sourceId === "irshad") return !new URL(u).search && irshad.test(p);
     return p.startsWith("/catalog/") && p !== "/catalog/muqayise-et";
   });
   const paths = cats.map((u) => new URL(u).pathname.replace(/\/$/, ""));
   return cats.filter((u, i) => !paths.some((p) => p.startsWith(paths[i] + "/")));
 }
 
-// irshad.az/az/products/list returns the product grid fragment; its "load more" button names the
-// next page.
+// An irshad.az category page lists 18 products; its "load more" link names the next page.
 export function extractIrshadListingPage(html: string, pageUrl: string): ListingPage {
   const { products } = extractIrshadListing(html);
-  const next = html.match(/<button\b[^>]*\bid=["']loadMore["'][^>]*\bdata-page=["'](\d+)["']/i);
+  const next = html.match(
+    /<(?:a|button)\b[^>]*\bid=["']loadMore["'][^>]*\bdata-page=["'](\d+)["']/i,
+  );
   const pages: string[] = [];
   const current = Number(new URL(pageUrl).searchParams.get("page") || "1");
   // Only forward: a button that points back (or to the same page) would loop the run.

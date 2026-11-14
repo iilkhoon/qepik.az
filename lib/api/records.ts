@@ -106,3 +106,6 @@ export async function ownerId(): Promise<string | null> {
 export async function runBatched(commands: Statement[], size = 50) {
   for (let i = 0; i < commands.length; i += size) await db().batch(commands.slice(i, i + size));
 }
+
+export const historyPoint = (productId: string, price: number, date: string) =>
+  statement("history", { id: crypto.randomUUID(), productId, price, date, demo: false });

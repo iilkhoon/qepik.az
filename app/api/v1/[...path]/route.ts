@@ -8,6 +8,7 @@ import sitemapCoverage from "../../../../docs/sitemap-source-coverage.json";
 import { catalogSlice, parseCatalogQuery, suggest } from "../../../../lib/catalog-query";
 import { invalidatePublicCatalog, publicCatalog } from "../../../../lib/public-data";
 import { fetchTechnomania } from "../../../../lib/technomania";
+import { syncTechnomaniaFeed } from "../../../../lib/feed-sync";
 import { materializeCatalog } from "../../../../lib/catalog-storage";
 import {
   applyProductMatches,
@@ -18,7 +19,6 @@ import {
 } from "../../../../lib/product-matching";
 import { withProductMatchLock, MatchConflictError } from "../../../../lib/match-store";
 import { canonicalProductId } from "../../../../lib/catalog";
-import type { Statement } from "../../../../lib/db";
 import { getUser, type User } from "../../../auth";
 import {
   SESSION_COOKIE,
@@ -46,6 +46,7 @@ import {
   audit,
   catalog,
   db,
+  historyPoint,
   list,
   ownerId,
   runBatched,
@@ -71,10 +72,11 @@ const tooMany = () =>
     { status: 429, headers: { "Cache-Control": "no-store", "Retry-After": "60" } },
   );
 
-// When OWNER_EMAIL is configured only that account may claim the first-owner slot.
+// Registration is open to everyone, so the owner slot can only be claimed by the account whose
+// e-mail is set in OWNER_EMAIL on the server.
 function mayClaimOwner(user: User) {
   const allowed = process.env.OWNER_EMAIL?.trim().toLowerCase();
-  return !allowed || user.email.trim().toLowerCase() === allowed;
+  return !!allowed && user.email.trim().toLowerCase() === allowed;
 }
 
 async function bootstrap(user: User) {
@@ -337,8 +339,6 @@ async function clickPost(req: Request) {
   return json({ url: o.url });
 }
 
-const historyPoint = (productId: string, price: number, date: string) =>
-  statement("history", { id: crypto.randomUUID(), productId, price, date, demo: false });
 
 async function adminData() {
   const kinds = [
@@ -365,59 +365,12 @@ async function adminData() {
 }
 
 async function feedSync(user: User) {
-  const feed = await fetchTechnomania();
-  const c = await catalog();
-  const currentIds = new Set(c.products.map((p) => p.id));
-  const knownIds = new Set(feed.offers.map((o) => o.id));
-  const commands: Statement[] = [];
-  for (const p of feed.products) {
-    if (p.id === "iphone16-black" && currentIds.has(p.id)) {
-      const old = c.products.find((x) => x.id === p.id)!;
-      commands.push(statement("product", { ...old, familyId: p.familyId }));
-      continue;
-    }
-    commands.push(statement("product", p));
-  }
-  for (const o of feed.offers) commands.push(statement("offer", o));
-  for (const old of c.offers.filter(
-    (o) => o.storeId === "technomania" && o.id.startsWith("tm-offer-") && !knownIds.has(o.id),
-  ))
-    commands.push(statement("offer", { ...old, stock: false, checkedAt: feed.checkedAt }));
-  const changedProducts = new Set(feed.offers.filter((o) => o.stock).map((o) => o.productId));
-  for (const pid of changedProducts) {
-    const candidates = [
-      ...feed.offers,
-      ...c.offers.filter((o) => o.storeId !== "technomania"),
-    ].filter((o) => o.productId === pid && o.stock && !o.demo);
-    if (candidates.length)
-      commands.push(
-        historyPoint(pid, Math.min(...candidates.map((o) => o.price + o.shipping)), feed.checkedAt),
-      );
-  }
-  commands.push(
-    statement("feed", {
-      id: "technomania",
-      source: feed.source,
-      checkedAt: feed.checkedAt,
-      sourceCount: feed.sourceCount,
-      variantCount: feed.variantCount,
-      inStock: feed.inStock,
-      warnings: feed.warnings,
-    }),
-  );
-  await runBatched(commands, 45);
+  const result = await syncTechnomaniaFeed();
   await audit(
     user.userId,
-    `Technomania rəsmi feed yeniləndi: ${feed.sourceCount} məhsul / ${feed.variantCount} variant`,
+    `Technomania rəsmi feed yeniləndi: ${result.sourceCount} məhsul / ${result.variantCount} variant`,
   );
-  return json({
-    ok: true,
-    sourceCount: feed.sourceCount,
-    variantCount: feed.variantCount,
-    inStock: feed.inStock,
-    warnings: feed.warnings,
-    checkedAt: feed.checkedAt,
-  });
+  return json({ ok: true, ...result });
 }
 
 async function checkOffer(v: z.infer<typeof offer>, messages: { missing: string; domain: string }) {
@@ -714,7 +667,7 @@ async function route(req: Request): Promise<Response> {
         ? { id: user.userId, name: user.displayName, email: user.email, phone: user.phone || "" }
         : null,
       admin: !!user && owner === user.userId,
-      needsSetup: !owner,
+      needsSetup: !owner && !!user && mayClaimOwner(user),
     });
   }
   if (path === "personal" && method === "GET") return personalGet(user);

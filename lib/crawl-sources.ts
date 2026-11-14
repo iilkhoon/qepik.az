@@ -16,15 +16,7 @@ export const crawlSources: {
   // The listing pages are WooCommerce Store API JSON.
   listingJson?: boolean;
 }[] = [
-  {
-    id: "technomania",
-    name: "Technomania",
-    root: "https://technomania.az/api/catalog/feed?format=json",
-    refreshHours: 1,
-    listing: true,
-    listingJson: true,
-    listingStart: "https://technomania.az/api/catalog/feed?format=json",
-  },
+  // Technomania is read from its official JSON feed by lib/feed-sync.ts, not by a crawl job.
   // robots.txt asks for Crawl-delay: 30.
   {
     id: "irshad",
@@ -32,9 +24,8 @@ export const crawlSources: {
     root: "https://irshad.az/sitemap.xml",
     intervalMs: 30000,
     refreshHours: 24,
+    // Category pages from the sitemap, 18 products each, followed through "?page=N".
     listing: true,
-    listingStart: "https://irshad.az/az/products/list?q=&direction=asc&sort=id",
-    listingFragment: true,
   },
   {
     id: "baku",

@@ -287,7 +287,7 @@ console.log("PASS (unit): SEO metadata, JSON-LD, robots rules, route status, sit
 if (process.env.SEO_UNIT_ONLY === "1") process.exit(0);
 
 // --- Live checks against the dev server (fails without one, as before). ----------------------
-const base = "http://127.0.0.1:5173";
+const base = "http://127.0.0.1:3000";
 const jsonLdOf = (html) =>
   [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].flatMap((x) =>
     JSON.parse(x[1]),
@@ -299,7 +299,7 @@ assert(homeHtml.includes('rel="canonical"'));
 assert(homeHtml.includes("application/ld+json"));
 assert(homeHtml.includes("SearchAction"));
 assert(homeHtml.includes('href="/mehsul/'));
-assert(homeHtml.includes('class="pcard'), "home renders product cards on the server");
+assert(homeHtml.includes('class="card'), "home renders product cards on the server");
 assert(homeHtml.includes('href="/kateqoriya/'));
 const productHtml = await (await fetch(base + "/mehsul/iphone16-black")).text();
 assert(productHtml.includes("AggregateOffer"));

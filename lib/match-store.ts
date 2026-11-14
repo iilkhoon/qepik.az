@@ -1,4 +1,4 @@
-import type { SqlDatabase as D1Database, Statement as D1PreparedStatement } from "./db";
+import type { SqlDatabase as D1Database } from "./db";
 
 export class MatchConflictError extends Error {}
 type RecordWrite = { kind: string; id: string; value: object };

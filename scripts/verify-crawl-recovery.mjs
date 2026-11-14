@@ -36,7 +36,9 @@ const sqlite = new DatabaseSync(":memory:");
 sqlite.exec(
   "CREATE TABLE records(id TEXT PRIMARY KEY,kind TEXT NOT NULL,payload TEXT NOT NULL,updated_at INTEGER NOT NULL)",
 );
-sqlite.exec(fs.readFileSync("drizzle/0001_striped_electro.sql", "utf8"));
+sqlite.exec(
+  "CREATE UNIQUE INDEX crawl_one_open_source ON records (json_extract(payload, '$.sourceId')) WHERE kind='crawlJob' AND json_extract(payload, '$.status')!='complete'",
+);
 let failNextBatch = false;
 let failJobRead = "";
 class Statement {
@@ -359,7 +361,7 @@ const listingRules =
   "data:text/javascript;base64," +
   Buffer.from(compile(fs.readFileSync("lib/crawl-sources.ts", "utf8"))).toString("base64");
 const listingFake = `const crawlDelayMs=()=>0;class SourceAccessError extends Error{constructor(m,s){super(m);this.status=s;}}async function readMerchantSitemap(){throw new Error('no sitemap');}async function merchantPage(url){return url;}async function scanProduct(){throw new Error('product pages are not read');}`;
-const listingStub = `const listingCategories=()=>[],brandFromName=()=>"";function extractListing(source,html,url){const page=new URL(url).searchParams.get('page')||'1';const row=(n)=>({name:'Listing '+n,sku:'sku-'+n,price:100+Number(n),currency:'AZN',stock:true,stockKnown:true,checkedAt:new Date().toISOString(),url:'https://irshad.az/az/mehsullar/item-'+n,variantId:'v'+n});return page==='1'?{items:[row(1),row(2)],pages:[url+'&page=2']}:{items:[row(3)],pages:[]};}`;
+const listingStub = `const listingCategories=()=>[],brandFromName=()=>"";function extractListing(source,html,url){const next=new URL(url);const page=next.searchParams.get('page')||'1';next.searchParams.set('page','2');const row=(n)=>({name:'Listing '+n,sku:'sku-'+n,price:100+Number(n),currency:'AZN',stock:true,stockKnown:true,checkedAt:new Date().toISOString(),url:'https://casio.az/product/item-'+n,variantId:'v'+n});return page==='1'?{items:[row(1),row(2)],pages:[next.href]}:{items:[row(3)],pages:[]};}`;
 const listingCode = compile(fs.readFileSync("lib/crawl-jobs.ts", "utf8"))
   .replace(
     /import \{ materializeCatalog \} from ["'].\/catalog-storage["'];/,
@@ -377,7 +379,7 @@ const listingCode = compile(fs.readFileSync("lib/crawl-jobs.ts", "utf8"))
 const listingJobs = await import(
   "data:text/javascript;base64," + Buffer.from(listingCode).toString("base64")
 );
-let listingJob = await listingJobs.startCrawlJob(db, "irshad");
+let listingJob = await listingJobs.startCrawlJob(db, "casio");
 for (let i = 0; i < 5 && listingJob.status !== "complete"; i++) {
   ready(listingJob.id);
   sqlite.prepare("DELETE FROM records WHERE kind='crawlLock'").run();
@@ -388,12 +390,12 @@ assert.equal(listingJob.imported, 2);
 assert.equal(listingJob.failed, 1);
 const listed = sqlite
   .prepare(
-    "SELECT payload FROM records WHERE kind='offer' AND json_extract(payload,'$.storeId')='irshad'",
+    "SELECT payload FROM records WHERE kind='offer' AND json_extract(payload,'$.storeId')='casio'",
   )
   .all()
   .map((r) => JSON.parse(r.payload));
 assert.deepEqual(listed.map((o) => o.price).sort(), [101, 103]);
-assert(listed.every((o) => o.stock && !o.demo && o.url.startsWith("https://irshad.az/")));
+assert(listed.every((o) => o.stock && !o.demo && o.url.startsWith("https://casio.az/")));
 console.log(
   "PASS: 403/429 recovery, atomic D1 retry, pause and stale leases, background driver completion, paused/future job exclusion, per-job error isolation, persisted heartbeat and newer-run fencing, cancel, scheduled refresh, first runs, 429/challenge stop, unseen and aged offer expiry, skipped SKU-changed rows, category-page paging. In-memory SQLite; no network.",
 );

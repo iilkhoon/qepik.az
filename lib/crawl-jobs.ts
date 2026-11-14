@@ -716,8 +716,8 @@ export async function startDueRefreshes(db: D1Database, now = Date.now()) {
   }
   return started;
 }
-// Background driver for the cron trigger: advances every unpaused job one URL at a time, honouring
-// each job's nextRunAt and the per-host lock, until the time budget runs out.
+// Background driver for the scheduler: advances every unpaused job, honouring each job's nextRunAt
+// and the per-host lock, until the time budget runs out.
 export async function tickDueCrawlJobs(db: D1Database, budgetMs = 45000) {
   const deadline = Date.now() + budgetMs;
   const runtime: CrawlRuntime = {
@@ -739,36 +739,37 @@ export async function tickDueCrawlJobs(db: D1Database, budgetMs = 45000) {
     await startDueRefreshes(db);
     const rows = await db
       .prepare(
-        "SELECT payload FROM records WHERE kind='crawlJob' AND json_extract(payload,'$.status') IN ('discovering','importing','waiting') AND coalesce(json_extract(payload,'$.pauseRequested'),0)=0 ORDER BY updated_at ASC LIMIT 10",
+        "SELECT payload FROM records WHERE kind='crawlJob' AND json_extract(payload,'$.status') IN ('discovering','importing','waiting') AND coalesce(json_extract(payload,'$.pauseRequested'),0)=0 ORDER BY updated_at ASC LIMIT 80",
       )
       .all<{ payload: string }>();
     runtime.jobs = rows.results.length;
-    const pending = new Map(
-      rows.results.map((r) => {
-        const job = JSON.parse(r.payload) as CrawlJob;
-        return [job.id, job.nextRunAt || 0];
+    // Every store has its own host lock and crawl delay, so the jobs advance side by side; one
+    // slow or failing store does not hold the others back.
+    await Promise.all(
+      rows.results.map(async (r) => {
+        const first = JSON.parse(r.payload) as CrawlJob;
+        let runAt = first.nextRunAt || 0;
+        while (Date.now() < deadline) {
+          const wait = runAt - Date.now();
+          if (wait > 0) {
+            if (Date.now() + wait >= deadline) return;
+            await new Promise((resolve) => setTimeout(resolve, wait));
+          }
+          try {
+            const job = await tickCrawlJob(db, first.id);
+            runtime.ticks++;
+            if (!activeStatuses.includes(job.status as Status) || "busy" in job) return;
+            runAt = job.nextRunAt;
+          } catch (error) {
+            runtime.errors.push({
+              jobId: first.id,
+              message: error instanceof Error ? error.message : String(error),
+            });
+            return;
+          }
+        }
       }),
     );
-    while (pending.size && Date.now() < deadline) {
-      const [id, runAt] = [...pending].sort((a, b) => a[1] - b[1])[0];
-      const wait = runAt - Date.now();
-      if (wait > 0) {
-        if (Date.now() + wait >= deadline) break;
-        await new Promise((resolve) => setTimeout(resolve, wait));
-      }
-      try {
-        const job = await tickCrawlJob(db, id);
-        runtime.ticks++;
-        if (!activeStatuses.includes(job.status as Status) || "busy" in job) pending.delete(id);
-        else pending.set(id, job.nextRunAt);
-      } catch (error) {
-        runtime.errors.push({
-          jobId: id,
-          message: error instanceof Error ? error.message : String(error),
-        });
-        pending.delete(id);
-      }
-    }
   } catch (error) {
     runtime.errors.push({ message: error instanceof Error ? error.message : String(error) });
     throw error;
