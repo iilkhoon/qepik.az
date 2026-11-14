@@ -1,13 +1,10 @@
-// D1 record helpers shared by the API routes. Every record is a JSON payload keyed by `${kind}:${id}`.
-import { env } from "cloudflare:workers";
+// Record helpers shared by the API routes. Every record is a JSON payload keyed by `${kind}:${id}`.
+import { db, type Statement } from "../db";
 import type { Catalog, Review } from "../catalog";
 import { seedCatalog } from "../server-catalog";
 import { catalogMaterializationStatus } from "../catalog-storage";
 
-export function db() {
-  if (!env.DB) throw new Error("Məlumat bazası qoşulmayıb.");
-  return env.DB;
-}
+export { db };
 
 export async function list<T = unknown>(kind: string): Promise<T[]> {
   const r = await db()
@@ -106,6 +103,6 @@ export async function ownerId(): Promise<string | null> {
   return row ? (JSON.parse(row.payload) as { userId: string }).userId : null;
 }
 
-export async function runBatched(commands: D1PreparedStatement[], size = 50) {
+export async function runBatched(commands: Statement[], size = 50) {
   for (let i = 0; i < commands.length; i += size) await db().batch(commands.slice(i, i + size));
 }

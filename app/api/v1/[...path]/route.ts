@@ -18,8 +18,19 @@ import {
 } from "../../../../lib/product-matching";
 import { withProductMatchLock, MatchConflictError } from "../../../../lib/match-store";
 import { canonicalProductId } from "../../../../lib/catalog";
-import { env } from "cloudflare:workers";
+import type { Statement } from "../../../../lib/db";
 import { getUser, type User } from "../../../auth";
+import {
+  SESSION_COOKIE,
+  checkCredentials,
+  createAccount,
+  endSession,
+  normalizePhone,
+  sessionCookie,
+  startSession,
+} from "../../../../lib/accounts";
+import { ensureScheduler } from "../../../../lib/scheduler";
+import { cookies } from "next/headers";
 import { scanProduct, safeMerchantUrl } from "../../../../lib/extractor";
 import {
   ApiError,
@@ -50,7 +61,10 @@ const json = (v: unknown, status = 200) =>
   });
 
 const clientKey = (req: Request, user: User | null) =>
-  user?.userId || req.headers.get("cf-connecting-ip") || "anonymous";
+  user?.userId ||
+  req.headers.get("x-real-ip") ||
+  req.headers.get("x-forwarded-for")?.split(",")[0].trim() ||
+  "anonymous";
 const tooMany = () =>
   Response.json(
     { error: "Çox sayda sorğu. Bir az sonra yenidən cəhd edin." },
@@ -59,7 +73,7 @@ const tooMany = () =>
 
 // When OWNER_EMAIL is configured only that account may claim the first-owner slot.
 function mayClaimOwner(user: User) {
-  const allowed = env.OWNER_EMAIL?.trim().toLowerCase();
+  const allowed = process.env.OWNER_EMAIL?.trim().toLowerCase();
   return !allowed || user.email.trim().toLowerCase() === allowed;
 }
 
@@ -171,32 +185,141 @@ async function reviewPost(req: Request, user: User) {
   return json({ ok: true });
 }
 
-async function applicationPost(req: Request) {
+const AZ_CITIES = [
+  "Bakı",
+  "Sumqayıt",
+  "Gəncə",
+  "Mingəçevir",
+  "Şəki",
+  "Lənkəran",
+  "Naxçıvan",
+  "Şirvan",
+  "Quba",
+  "Xaçmaz",
+] as const;
+const phone = z
+  .string()
+  .max(30)
+  .transform((v, ctx) => {
+    const normalized = normalizePhone(v);
+    if (!normalized) {
+      ctx.addIssue({ code: "custom", message: "Nömrə +994 XX XXX XX XX formatında olmalıdır" });
+      return z.NEVER;
+    }
+    return normalized;
+  });
+
+async function applicationPost(req: Request, user: User) {
   const b = z
     .object({
-      company: z.string().min(2).max(150),
-      email: z.string().email(),
-      phone: z.string().min(9).max(30),
+      company: z.string().trim().min(2).max(150),
+      legalName: z.string().trim().min(2).max(200),
+      legalForm: z.enum(["mmc", "fiziki", "asc", "diger"]),
+      voen: z.string().regex(/^\d{10}$/, "VÖEN 10 rəqəm olmalıdır"),
+      contact: z.string().trim().min(2).max(120),
+      email: z.string().email().max(200),
+      phone,
       website: z
         .string()
         .url()
-        .refine((v) => v.startsWith("https://")),
-      voen: z.string().regex(/^\d{10}$/),
+        .max(300)
+        .refine((v) => v.startsWith("https://"), "Sayt https:// ilə başlamalıdır"),
+      categories: z.array(id).min(1).max(17),
+      cities: z.array(z.enum(AZ_CITIES)).min(1).max(AZ_CITIES.length),
+      delivery: z.array(z.enum(["kuryer", "poct", "magazadan", "pulsuz"])).max(4),
+      payment: z.array(z.enum(["nagd", "kart", "taksit", "kredit", "kocurme"])).min(1).max(5),
+      feedType: z.enum(["xml", "json", "csv", "sitemap", "yoxdur"]),
+      feedUrl: z
+        .string()
+        .max(500)
+        .refine((v) => !v || /^https:\/\/[^\s]+$/.test(v), "Feed linki https:// ilə başlamalıdır"),
+      productCount: z.enum(["0-100", "100-1000", "1000-10000", "10000+"]),
       note: z.string().max(2000),
     })
     .parse(await readJson(req));
+  if (b.feedType !== "yoxdur" && b.feedType !== "sitemap" && !b.feedUrl)
+    throw new ApiError(400, "Seçdiyin feed növü üçün feed linkini yaz.");
   await statement("application", {
     ...b,
     id: crypto.randomUUID(),
+    userId: user.userId,
     status: "pending",
     date: new Date().toISOString(),
   }).run();
   return json({ ok: true });
 }
 
+async function applicationsMine(user: User) {
+  const rows = await db()
+    .prepare(
+      "SELECT payload FROM records WHERE kind='application' AND json_extract(payload,'$.userId')=? ORDER BY updated_at DESC LIMIT 20",
+    )
+    .bind(user.userId)
+    .all<{ payload: string }>();
+  return json({
+    applications: rows.results.map((r) => {
+      const a = JSON.parse(r.payload);
+      return {
+        id: a.id,
+        company: a.company,
+        website: a.website,
+        status: a.status,
+        date: a.date,
+      };
+    }),
+  });
+}
+
+const secure = (req: Request) =>
+  new URL(req.url).protocol === "https:" || req.headers.get("x-forwarded-proto") === "https";
+const withSession = (req: Request, token: string | null, body: unknown) =>
+  Response.json(body, {
+    headers: {
+      "Cache-Control": "no-store",
+      "X-Content-Type-Options": "nosniff",
+      "Set-Cookie": sessionCookie(token, secure(req)),
+    },
+  });
+const password = z
+  .string()
+  .min(8, "Şifrə ən azı 8 simvol olmalıdır")
+  .max(200)
+  .refine((v) => /\p{L}/u.test(v) && /\d/.test(v), "Şifrədə hərf və rəqəm olmalıdır");
+
+async function registerPost(req: Request) {
+  const b = z
+    .object({
+      name: z.string().trim().min(2, "Adını yaz").max(80),
+      email: z.string().email("E-poçt düzgün deyil").max(200),
+      phone: phone.optional().or(z.literal("").transform(() => undefined)),
+      city: z.enum(AZ_CITIES).optional(),
+      password,
+      terms: z.literal(true, { errorMap: () => ({ message: "Şərtləri qəbul et" }) }),
+    })
+    .parse(await readJson(req));
+  const account = await createAccount(b);
+  if (!account) throw new ApiError(409, "Bu e-poçtla hesab artıq var. Daxil ol.");
+  return withSession(req, await startSession(account.id), { ok: true });
+}
+
+async function loginPost(req: Request) {
+  const b = z
+    .object({ email: z.string().email().max(200), password: z.string().min(1).max(200) })
+    .parse(await readJson(req));
+  const account = await checkCredentials(b.email, b.password);
+  if (!account) throw new ApiError(401, "E-poçt və ya şifrə yanlışdır.");
+  return withSession(req, await startSession(account.id), { ok: true });
+}
+
+async function logoutPost(req: Request) {
+  const token = (await cookies()).get(SESSION_COOKIE)?.value;
+  if (token) await endSession(token);
+  return withSession(req, null, { ok: true });
+}
+
 async function clickPost(req: Request) {
   const b = z.object({ offerId: id }).parse(await readJson(req));
-  const c = await catalog();
+  const c = await publicCatalog();
   const o = c.offers.find((o) => o.id === b.offerId);
   if (!o) return json({ error: "Təklif tapılmadı." }, 404);
   if (o.demo) return json({ error: "Nümunə təklifdən alış edilmir." }, 400);
@@ -246,7 +369,7 @@ async function feedSync(user: User) {
   const c = await catalog();
   const currentIds = new Set(c.products.map((p) => p.id));
   const knownIds = new Set(feed.offers.map((o) => o.id));
-  const commands: D1PreparedStatement[] = [];
+  const commands: Statement[] = [];
   for (const p of feed.products) {
     if (p.id === "iphone16-black" && currentIds.has(p.id)) {
       const old = c.products.find((x) => x.id === p.id)!;
@@ -559,6 +682,13 @@ async function route(req: Request): Promise<Response> {
       if (rateLimited("click:" + clientKey(req, user), 60)) return tooMany();
       return clickPost(req);
     }
+    if (path.startsWith("auth/") && method === "POST") {
+      const key = path + ":" + clientKey(req, null);
+      if (path === "auth/logout") return logoutPost(req);
+      if (rateLimited(key, 10, 600000)) return tooMany();
+      if (path === "auth/register") return registerPost(req);
+      if (path === "auth/login") return loginPost(req);
+    }
     if (!user) return json({ error: "Bu əməliyyat üçün hesabınıza daxil olun." }, 401);
     // Public writes (favourites, reviews, applications); admin work is owner-only and unlimited.
     if (!path.startsWith("admin/")) {
@@ -572,17 +702,22 @@ async function route(req: Request): Promise<Response> {
   if (path === "session" && method === "GET") {
     const owner = await ownerId();
     return json({
-      user: user ? { id: user.userId, name: user.displayName } : null,
+      user: user
+        ? { id: user.userId, name: user.displayName, email: user.email, phone: user.phone || "" }
+        : null,
       admin: !!user && owner === user.userId,
       needsSetup: !owner,
     });
   }
   if (path === "personal" && method === "GET") return personalGet(user);
+  if (path === "health" && method === "GET") return json({ ok: true });
+  if (path === "applications/mine" && method === "GET")
+    return user ? applicationsMine(user) : json({ applications: [] });
   if (method === "POST" && user) {
     if (path === "bootstrap") return bootstrap(user);
     if (path === "personal") return personalPost(req, user);
     if (path === "reviews") return reviewPost(req, user);
-    if (path === "applications") return applicationPost(req);
+    if (path === "applications") return applicationPost(req, user);
   }
   if (!path.startsWith("admin/")) return json({ error: "Ünvan tapılmadı." }, 404);
   if (!user) return json({ error: "Bu əməliyyat üçün hesabınıza daxil olun." }, 401);
@@ -594,8 +729,11 @@ async function handle(req: Request) {
   const admin = new URL(req.url).pathname.startsWith("/api/v1/admin/");
   try {
     // Awaited here so rejections from every delegated handler reach the catch below.
+    ensureScheduler();
     const res = await route(req);
-    if (req.method !== "GET" && res.ok) invalidatePublicCatalog();
+    // Only catalog writes change what shoppers see; favourites, clicks and sign-ins do not.
+    if (req.method !== "GET" && res.ok && (admin || req.url.endsWith("/bootstrap")))
+      invalidatePublicCatalog();
     return res;
   } catch (e) {
     console.error("API:", e instanceof Error ? e.name + ": " + e.message : String(e));

@@ -70,7 +70,7 @@ export function crossSite(req: Request, url: URL) {
 export const bareHost = (h: string) => h.toLowerCase().replace(/^www\./, "");
 
 const internal = (message: string) =>
-  /D1_|SQLITE|no such table|Network connection lost|internal error/i.test(message);
+  /SQLITE|constraint failed|no such table|Network connection lost|internal error/i.test(message);
 const GENERIC = "Əməliyyat alınmadı. Bir az sonra yenidən cəhd edin.";
 
 // Maps a thrown value to a status and a message that is safe to return. Admin (owner-only)

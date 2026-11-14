@@ -56,7 +56,8 @@ import { api, errorMessage, Modal, Empty, CategoryIcon, StoreLogo } from "./ui";
 import type { Act, Personal, Session } from "./types";
 import Admin from "./admin";
 import Home from "./home";
-import { SIGN_IN_PATH, SIGN_OUT_PATH } from "./auth-headers";
+import { SIGN_IN_PATH } from "./auth-headers";
+const SIGN_OUT_PATH = "/";
 import { ProductImage } from "../components/product-image";
 import { azDate, azDateTime, azNumber } from "../components/format";
 type ModalState =

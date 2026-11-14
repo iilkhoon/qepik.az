@@ -1,28 +1,24 @@
-import { headers } from "next/headers";
-import { USER_EMAIL_HEADER, USER_ID_HEADER, USER_NAME_HEADER } from "./auth-headers";
+import { cookies } from "next/headers";
+import { accountForToken, SESSION_COOKIE } from "../lib/accounts";
 
-// The signed-in account, as set on the request by whatever runs in front of the app. Locally that
-// is scripts/vite/local-auth-plugin.ts; a production server must strip these headers from incoming
-// requests and set them only after its own sign-in has verified the account.
+// The signed-in account, resolved from the session cookie against the site's own database.
 export type User = {
   userId: string;
   displayName: string;
   email: string;
+  phone?: string | null;
+  city?: string | null;
 };
 
 export async function getUser(): Promise<User | null> {
-  const h = await headers();
-  const userId = h.get(USER_ID_HEADER);
-  const email = h.get(USER_EMAIL_HEADER);
-  if (!userId || !email) return null;
-  const name = h.get(USER_NAME_HEADER);
-  return { userId, email, displayName: name ? safeDecode(name) : email };
-}
-
-function safeDecode(value: string) {
-  try {
-    return decodeURIComponent(value);
-  } catch {
-    return value;
-  }
+  const token = (await cookies()).get(SESSION_COOKIE)?.value;
+  const account = await accountForToken(token);
+  if (!account) return null;
+  return {
+    userId: account.id,
+    email: account.email,
+    displayName: account.name,
+    phone: account.phone,
+    city: account.city,
+  };
 }
