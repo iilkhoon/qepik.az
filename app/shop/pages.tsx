@@ -79,7 +79,11 @@ export function Stores() {
         {list.map((s) => {
           const count = c.storeStats[s.id]?.count || 0;
           return (
-            <a key={s.id} className={"store" + (count ? "" : " store-off")} href={"/magazalar/" + s.id}>
+            <a
+              key={s.id}
+              className={"store" + (count ? "" : " store-off")}
+              href={"/magazalar/" + s.id}
+            >
               <span className="store-logo">
                 <StoreLogo store={s} />
               </span>
@@ -92,7 +96,9 @@ export function Stores() {
           );
         })}
       </div>
-      {!list.length && <Empty icon={StoreIcon} title="Mağaza tapılmadı" text="Adın yazılışını yoxla." />}
+      {!list.length && (
+        <Empty icon={StoreIcon} title="Mağaza tapılmadı" text="Adın yazılışını yoxla." />
+      )}
     </div>
   );
 }
@@ -122,7 +128,11 @@ export function Compare() {
                 <td />
                 {items.map((p) => (
                   <th key={p.id} scope="col">
-                    <button className="compare-remove" onClick={() => compare(p)} aria-label={p.name + " müqayisədən sil"}>
+                    <button
+                      className="compare-remove"
+                      onClick={() => compare(p)}
+                      aria-label={p.name + " müqayisədən sil"}
+                    >
                       <X size={16} />
                     </button>
                     <a href={"/mehsul/" + p.id}>
@@ -278,7 +288,11 @@ function Password({ name = "password", autoComplete }: { name?: string; autoComp
         maxLength={200}
         autoComplete={autoComplete}
       />
-      <button type="button" aria-label={show ? "Şifrəni gizlət" : "Şifrəni göstər"} onClick={() => setShow(!show)}>
+      <button
+        type="button"
+        aria-label={show ? "Şifrəni gizlət" : "Şifrəni göstər"}
+        onClick={() => setShow(!show)}
+      >
         {show ? <EyeOff size={18} /> : <Eye size={18} />}
       </button>
     </span>
@@ -360,7 +374,14 @@ export function AuthPage({ mode }: { mode: "login" | "register" }) {
         )}
         <label>
           E-poçt
-          <input name="email" type="email" required maxLength={200} autoComplete="email" inputMode="email" />
+          <input
+            name="email"
+            type="email"
+            required
+            maxLength={200}
+            autoComplete="email"
+            inputMode="email"
+          />
         </label>
         {mode === "register" && (
           <div className="form-two">
@@ -630,11 +651,23 @@ export function MerchantForm() {
             <div className="form-two">
               <label>
                 Mağazanın adı
-                <input name="company" required minLength={2} maxLength={150} placeholder="Məsələn, Texno Bakı" />
+                <input
+                  name="company"
+                  required
+                  minLength={2}
+                  maxLength={150}
+                  placeholder="Məsələn, Texno Bakı"
+                />
               </label>
               <label>
                 Hüquqi ad
-                <input name="legalName" required minLength={2} maxLength={200} placeholder="“Texno Bakı” MMC" />
+                <input
+                  name="legalName"
+                  required
+                  minLength={2}
+                  maxLength={200}
+                  placeholder="“Texno Bakı” MMC"
+                />
               </label>
             </div>
             <div className="form-two">
@@ -665,7 +698,13 @@ export function MerchantForm() {
             <legend>2. Əlaqə</legend>
             <label>
               Əlaqədar şəxs
-              <input name="contact" required minLength={2} maxLength={120} defaultValue={session.user.name} />
+              <input
+                name="contact"
+                required
+                minLength={2}
+                maxLength={120}
+                defaultValue={session.user.name}
+              />
             </label>
             <div className="form-two">
               <label>
@@ -691,7 +730,13 @@ export function MerchantForm() {
             <legend>3. Mağaza və kataloq</legend>
             <label>
               Veb-sayt
-              <input name="website" type="url" required pattern="https://.*" placeholder="https://magazan.az" />
+              <input
+                name="website"
+                type="url"
+                required
+                pattern="https://.*"
+                placeholder="https://magazan.az"
+              />
             </label>
             <div className="form-group">
               <span>Nə satırsan?</span>
@@ -716,7 +761,11 @@ export function MerchantForm() {
               </label>
               <label>
                 Kataloq mənbəyi
-                <select name="feedType" value={feedType} onChange={(e) => setFeedType(e.target.value)}>
+                <select
+                  name="feedType"
+                  value={feedType}
+                  onChange={(e) => setFeedType(e.target.value)}
+                >
                   <option value="sitemap">Sayt xəritəsi (sitemap.xml)</option>
                   <option value="xml">XML feed (YML / Google Merchant)</option>
                   <option value="json">JSON feed / API</option>
@@ -782,7 +831,12 @@ export function MerchantForm() {
                   ] as const
                 ).map(([value, label]) => (
                   <label key={value}>
-                    <input type="checkbox" name="payment" value={value} defaultChecked={value === "nagd"} />
+                    <input
+                      type="checkbox"
+                      name="payment"
+                      value={value}
+                      defaultChecked={value === "nagd"}
+                    />
                     <span>{label}</span>
                   </label>
                 ))}
@@ -790,12 +844,18 @@ export function MerchantForm() {
             </div>
             <label>
               Əlavə məlumat <small>(istəyə bağlı)</small>
-              <textarea name="note" maxLength={2000} placeholder="Filiallar, zəmanət şərtləri, iş saatları…" />
+              <textarea
+                name="note"
+                maxLength={2000}
+                placeholder="Filiallar, zəmanət şərtləri, iş saatları…"
+              />
             </label>
           </fieldset>
           <label className="toggle">
             <input type="checkbox" required />
-            <span>Məlumatların doğruluğunu təsdiqləyirəm və yoxlanış üçün saxlanmasına razıyam.</span>
+            <span>
+              Məlumatların doğruluğunu təsdiqləyirəm və yoxlanış üçün saxlanmasına razıyam.
+            </span>
           </label>
           <button className="btn btn-primary btn-lg" disabled={busy}>
             {busy ? "Göndərilir…" : "Müraciəti göndər"}
@@ -856,12 +916,30 @@ export function InfoContent({ topic }: { topic: string }) {
 }
 
 const guide = [
-  ["Eyni məhsuldurmu?", "Model nömrəsi, yaddaş, rəng və region kodunu müqayisə et. Eyni adın arxasında fərqli variantlar ola bilər."],
-  ["Son qiymət nə qədərdir?", "Nağd qiymətə çatdırılmanı əlavə et. Kupon və ya xüsusi kart şərti varsa, şərtsiz qiymətlə qarışdırma."],
-  ["Aylıq ödəniş, yoxsa yekun?", "Aylıq məbləği ay sayına vur və komissiyaları əlavə et. Taksit kartının (Birkart, Tamkart, BolKart) şərti mağazaya görə dəyişir."],
-  ["Endirim həqiqidirmi?", "Üstündən xətt çəkilmiş qiymətlə kifayətlənmə. Qiymət tarixçəsinə bax; məlumat toplanmayıbsa nəticə çıxarma."],
-  ["Zəmanət kimdəndir?", "İstehsalçı, distribütor və ya mağaza zəmanətini dəqiqləşdir. Müddəti və servis ünvanını yazılı öyrən."],
-  ["Mənbə nə vaxt yoxlanılıb?", "Qiymət və stok dəyişir. Son yoxlanma vaxtına bax və ödənişdən əvvəl mağazadakı yekunu təsdiqlə."],
+  [
+    "Eyni məhsuldurmu?",
+    "Model nömrəsi, yaddaş, rəng və region kodunu müqayisə et. Eyni adın arxasında fərqli variantlar ola bilər.",
+  ],
+  [
+    "Son qiymət nə qədərdir?",
+    "Nağd qiymətə çatdırılmanı əlavə et. Kupon və ya xüsusi kart şərti varsa, şərtsiz qiymətlə qarışdırma.",
+  ],
+  [
+    "Aylıq ödəniş, yoxsa yekun?",
+    "Aylıq məbləği ay sayına vur və komissiyaları əlavə et. Taksit kartının (Birkart, Tamkart, BolKart) şərti mağazaya görə dəyişir.",
+  ],
+  [
+    "Endirim həqiqidirmi?",
+    "Üstündən xətt çəkilmiş qiymətlə kifayətlənmə. Qiymət tarixçəsinə bax; məlumat toplanmayıbsa nəticə çıxarma.",
+  ],
+  [
+    "Zəmanət kimdəndir?",
+    "İstehsalçı, distribütor və ya mağaza zəmanətini dəqiqləşdir. Müddəti və servis ünvanını yazılı öyrən.",
+  ],
+  [
+    "Mənbə nə vaxt yoxlanılıb?",
+    "Qiymət və stok dəyişir. Son yoxlanma vaxtına bax və ödənişdən əvvəl mağazadakı yekunu təsdiqlə.",
+  ],
 ];
 export function Guide() {
   return (

@@ -17,6 +17,7 @@ OWNER_EMAIL=sen@example.com PORT=3000 npm start
 - `OWNER_EMAIL`: admin panelini (`/admin`) yalnız bu e-poçtla qeydiyyatdan keçən hesab aktivləşdirə bilər. Təyin edilməyibsə admin heç kimə açılmır.
 - Sayt HTTPS arxasında (nginx/Caddy) işləməlidir; proksi `X-Forwarded-Proto` və `X-Real-IP` başlıqlarını ötürməlidir ki, sessiya kukisi `Secure` olsun və sorğu limiti müştəri üzrə işləsin.
 - Vəziyyətə baxmaq: `node scripts/status.mjs` (bazadakı qeydlər və hər mağaza idxalının gedişi).
+- `seed/catalog.jsonl.gz`: toplanmış məhsul, təklif və qiymət tarixçəsinin snapshot-u. Yeni server onu ilk işə düşəndə bir dəfə yükləyir, sonra idxal işləri məlumatı özü yeniləyir. Yenidən yazmaq üçün: `node scripts/export-seed.mjs`.
 - Ehtiyat nüsxə: `data/` qovluğunu kopyalamaq kifayətdir.
 
 Lokal iş üçün: `npm run dev` (port 5173), `npm run typecheck`, `npm run lint`.

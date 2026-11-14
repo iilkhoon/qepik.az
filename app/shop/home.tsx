@@ -25,7 +25,14 @@ import { ProductImage } from "../../components/product-image";
 import { ProductCard, Rail } from "./card";
 import { useShop } from "./context";
 
-const popular = ["iPhone 17", "Samsung Galaxy", "AirPods", "PlayStation 5", "Robot tozsoran", "Smart TV"];
+const popular = [
+  "iPhone 17",
+  "Samsung Galaxy",
+  "AirPods",
+  "PlayStation 5",
+  "Robot tozsoran",
+  "Smart TV",
+];
 const faq = [
   [
     "Qəpik məhsul satır?",
@@ -175,7 +182,10 @@ export default function Home() {
     .sort((a, b) => (c.storeStats[b.id]?.count || 0) - (c.storeStats[a.id]?.count || 0));
   return (
     <div className="home">
-      <section className={"hero" + (stageItems.length || ranked.length >= 4 ? "" : " hero-solo")} aria-labelledby="home-title">
+      <section
+        className={"hero" + (stageItems.length || ranked.length >= 4 ? "" : " hero-solo")}
+        aria-labelledby="home-title"
+      >
         <div className="hero-copy">
           <span className="hero-pill">
             <i aria-hidden="true" />
@@ -188,7 +198,13 @@ export default function Home() {
             Azərbaycan mağazalarının qiymətini, çatdırılmasını və taksitini yan-yana gör. Ən sərfəli
             mağazaya bir kliklə keç.
           </p>
-          <form action="/axtaris" method="get" className="hero-search" role="search" aria-label="Ana səhifə axtarışı">
+          <form
+            action="/axtaris"
+            method="get"
+            className="hero-search"
+            role="search"
+            aria-label="Ana səhifə axtarışı"
+          >
             <Search size={20} aria-hidden="true" />
             <input
               name="q"
@@ -217,7 +233,13 @@ export default function Home() {
                 return (
                   <a key={p.id} href={"/mehsul/" + p.id}>
                     <span>
-                      <ProductImage src={p.image} alt="" width={120} height={120} decoding="async" />
+                      <ProductImage
+                        src={p.image}
+                        alt=""
+                        width={120}
+                        height={120}
+                        decoding="async"
+                      />
                     </span>
                     <b>{p.name}</b>
                     {offer && <strong>{money(offer.price)}</strong>}

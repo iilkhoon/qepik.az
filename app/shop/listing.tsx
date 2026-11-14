@@ -80,7 +80,11 @@ export default function Listing({
   const storeName = (id: string) => c.stores.find((s) => s.id === id)?.name || id;
   const pageLink = (n: number, label: string, text: React.ReactNode, cls = "") =>
     n < 1 || n > totalPages || n === currentPage || loading ? (
-      <span key={label} className={"page " + cls + (n === currentPage ? " on" : " off")} aria-label={label}>
+      <span
+        key={label}
+        className={"page " + cls + (n === currentPage ? " on" : " off")}
+        aria-label={label}
+      >
         {text}
       </span>
     ) : (
@@ -100,7 +104,17 @@ export default function Listing({
       </a>
     );
   // 1 … 4 5 [6] 7 8 … 40
-  const pages = [...new Set([1, currentPage - 2, currentPage - 1, currentPage, currentPage + 1, currentPage + 2, totalPages])]
+  const pages = [
+    ...new Set([
+      1,
+      currentPage - 2,
+      currentPage - 1,
+      currentPage,
+      currentPage + 1,
+      currentPage + 2,
+      totalPages,
+    ]),
+  ]
     .filter((n) => n >= 1 && n <= totalPages)
     .sort((a, b) => a - b);
   const filters = (
@@ -260,7 +274,12 @@ export default function Listing({
             {store?.domain && (
               <>
                 {" · "}
-                <a className="link" href={"https://" + store.domain} target="_blank" rel="noopener noreferrer">
+                <a
+                  className="link"
+                  href={"https://" + store.domain}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   {store.domain} <ArrowUpRight size={13} aria-hidden="true" />
                 </a>
               </>
@@ -273,7 +292,11 @@ export default function Listing({
           {categories
             .filter((cat) => c.categoryStats[cat.id]?.count)
             .map((cat) => (
-              <a key={cat.id} href={"/kateqoriya/" + cat.id} className={cat.id === category ? "on" : ""}>
+              <a
+                key={cat.id}
+                href={"/kateqoriya/" + cat.id}
+                className={cat.id === category ? "on" : ""}
+              >
                 <CategoryIcon name={cat.icon} size={16} />
                 {cat.name}
               </a>
@@ -290,7 +313,11 @@ export default function Listing({
                   Sıfırla
                 </button>
               )}
-              <button className="filters-close" aria-label="Filtrləri bağla" onClick={() => setSheet(false)}>
+              <button
+                className="filters-close"
+                aria-label="Filtrləri bağla"
+                onClick={() => setSheet(false)}
+              >
                 <X size={20} />
               </button>
             </div>
@@ -382,7 +409,12 @@ export default function Listing({
               </div>
               {totalPages > 1 && (
                 <nav className="pagination" aria-label="Məhsul səhifələri">
-                  {pageLink(currentPage - 1, "Əvvəlki səhifə", <ChevronLeft size={18} />, "page-step")}
+                  {pageLink(
+                    currentPage - 1,
+                    "Əvvəlki səhifə",
+                    <ChevronLeft size={18} />,
+                    "page-step",
+                  )}
                   {pages.flatMap((n, i) => [
                     i > 0 && n - pages[i - 1] > 1 ? (
                       <span key={"gap" + n} className="page off" aria-hidden="true">

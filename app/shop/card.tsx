@@ -32,7 +32,14 @@ export function ProductCard({ p, rank }: { p: Product; rank?: number }) {
       className={"card" + (available.length || low?.stockKnown === false ? "" : " card-off")}
     >
       <a className="card-media" href={href} tabIndex={-1} aria-hidden="true">
-        <ProductImage src={p.image} alt="" width={220} height={220} loading="lazy" decoding="async" />
+        <ProductImage
+          src={p.image}
+          alt=""
+          width={220}
+          height={220}
+          loading="lazy"
+          decoding="async"
+        />
       </a>
       <div className="card-flags">
         {rank !== undefined && <span className="flag flag-rank">{rank}</span>}
@@ -70,9 +77,7 @@ export function ProductCard({ p, rank }: { p: Product; rank?: number }) {
           {p.name}
         </a>
         {(p.variant || p.distinction) && (
-          <p className="card-variant">
-            {[p.variant, p.distinction].filter(Boolean).join(" · ")}
-          </p>
+          <p className="card-variant">{[p.variant, p.distinction].filter(Boolean).join(" · ")}</p>
         )}
         <div className="card-price">
           <strong>{low ? money(low.price) : "Qiymət yoxdur"}</strong>

@@ -160,6 +160,20 @@
     "logoBytes": 10202
   },
   {
+    "id": "icomp",
+    "name": "iComp",
+    "domain": "icomp.az",
+    "url": "https://icomp.az",
+    "description": "Kompüter hissələri, noutbuk aksesuarları və adapterlər.",
+    "color": "#1f5fbf",
+    "verifiedAt": "2026-11-14T21:50:00Z",
+    "status": "directory_verified",
+    "httpStatus": 200,
+    "sourceUrl": "https://icomp.az",
+    "priceIntegration": "crawl_connected",
+    "isPartner": false
+  },
+  {
     "id": "digitalhome",
     "name": "Digital Home / oneX",
     "domain": "digitalhome.az",

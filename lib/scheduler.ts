@@ -5,6 +5,7 @@ import { tickDueCrawlJobs } from "./crawl-jobs";
 import { materializeCatalog } from "./catalog-storage";
 import { invalidatePublicCatalog } from "./public-data";
 import { syncTechnomaniaFeed } from "./feed-sync";
+import { importSeedSnapshot } from "./seed-import";
 
 const state = globalThis as {
   __qepikScheduler?: { running: boolean; timer: NodeJS.Timeout; feedAt: number };
@@ -18,7 +19,8 @@ async function pass() {
     let status = await materializeCatalog(db());
     const seeding = !status.complete;
     while (!status.complete) status = await materializeCatalog(db());
-    if (seeding) invalidatePublicCatalog();
+    const loaded = await importSeedSnapshot();
+    if (seeding || loaded) invalidatePublicCatalog();
     if (process.env.CRAWL !== "off") {
       if (Date.now() - s.feedAt >= 3600000) {
         s.feedAt = Date.now();

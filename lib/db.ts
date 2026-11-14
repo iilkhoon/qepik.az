@@ -18,7 +18,9 @@ export class Statement {
     return new Statement(
       this.owner,
       this.sql,
-      params.map((p) => (p === undefined ? null : typeof p === "boolean" ? Number(p) : p)) as SQLInputValue[],
+      params.map((p) =>
+        p === undefined ? null : typeof p === "boolean" ? Number(p) : p,
+      ) as SQLInputValue[],
     );
   }
   async first<T = Record<string, unknown>>(): Promise<T | null> {

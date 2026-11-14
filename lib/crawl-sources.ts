@@ -54,6 +54,8 @@ export const crawlSources: {
     refreshHours: 72,
   },
   { id: "soliton", name: "Soliton", root: "https://soliton.az/sitemap.xml", refreshHours: 72 },
+  // WordPress sitemap: products are /<slug>.html pages with Product JSON-LD.
+  { id: "icomp", name: "iComp", root: "https://icomp.az/sitemap.xml", refreshHours: 24 },
   {
     id: "bytelecom",
     name: "Bytelecom",
@@ -216,7 +218,7 @@ export function isProductCandidate(sourceId: string, raw: string) {
     );
   if (sourceId === "ispace") return /^\/product\/[^/]+$/.test(path);
   // compstore.az: sitemap-posts.xml lists AZ products as /<slug>.html and RU ones under /ru/.
-  if (sourceId === "compstore") return /^\/[^/]+\.html$/.test(path);
+  if (sourceId === "compstore" || sourceId === "icomp") return /^\/[^/]+\.html$/.test(path);
   // Unverified: smartelectronics.az answers every request (robots.txt included) with a Cloudflare
   // challenge (HTTP 403, 2026-10-31), so its runs stop as blocked before this rule is used.
   if (sourceId === "smartelectronics") return /^\/az\/mehsullar\/[^/]+\/?$/.test(path);

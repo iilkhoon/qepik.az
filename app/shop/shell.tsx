@@ -90,7 +90,14 @@ function SearchBox({ city, initial }: { city: string; initial: string }) {
     if (query.trim()) go("/axtaris?q=" + encodeURIComponent(query.trim()));
   };
   return (
-    <form className="search" action="/axtaris" method="get" role="search" ref={box} onSubmit={submit}>
+    <form
+      className="search"
+      action="/axtaris"
+      method="get"
+      role="search"
+      ref={box}
+      onSubmit={submit}
+    >
       <Search size={20} aria-hidden="true" />
       <input
         name="q"
@@ -448,7 +455,11 @@ export default function ShopShell({
             <LayoutGrid size={18} aria-hidden="true" /> Kateqoriyalar
           </button>
           <SearchBox key={searchTerm} city={city} initial={searchTerm} />
-          <button className="header-city" onClick={() => setModal({ type: "city" })} aria-label={"Şəhər: " + city}>
+          <button
+            className="header-city"
+            onClick={() => setModal({ type: "city" })}
+            aria-label={"Şəhər: " + city}
+          >
             <MapPin size={18} aria-hidden="true" />
             {city}
           </button>
@@ -493,12 +504,23 @@ export default function ShopShell({
         </nav>
       </header>
       {menu && (
-        <div className="drawer" id="category-menu" role="dialog" aria-modal="true" aria-label="Kateqoriyalar">
+        <div
+          className="drawer"
+          id="category-menu"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Kateqoriyalar"
+        >
           <div className="scrim" onClick={() => setMenu(false)} />
           <div className="drawer-panel">
             <div className="drawer-head">
               <h2>Kateqoriyalar</h2>
-              <button className="icon-btn" aria-label="Bağla" onClick={() => setMenu(false)} autoFocus>
+              <button
+                className="icon-btn"
+                aria-label="Bağla"
+                onClick={() => setMenu(false)}
+                autoFocus
+              >
                 <X size={20} />
               </button>
             </div>
@@ -532,7 +554,10 @@ export default function ShopShell({
         </div>
       )}
       {c.dataStatus && c.dataStatus.state !== "ready" && (
-        <div className="wrap notice" role={c.dataStatus.state === "unavailable" ? "alert" : "status"}>
+        <div
+          className="wrap notice"
+          role={c.dataStatus.state === "unavailable" ? "alert" : "status"}
+        >
           <Info size={18} aria-hidden="true" />
           <span>{c.dataStatus.message || "Kataloq hazırlanır."}</span>
           {c.dataStatus.state === "unavailable" && (
@@ -632,7 +657,9 @@ export default function ShopShell({
           </div>
           <div>
             <h3>Qəpik</h3>
-            <button onClick={() => setModal({ type: "info", topic: "Haqqımızda" })}>Necə işləyir?</button>
+            <button onClick={() => setModal({ type: "info", topic: "Haqqımızda" })}>
+              Necə işləyir?
+            </button>
             <a href="/rehber">Alış-veriş bələdçisi</a>
             <button onClick={() => setModal({ type: "info", topic: "Sıralama qaydası" })}>
               Sıralama qaydası
@@ -670,12 +697,20 @@ export default function ShopShell({
           </button>
         </div>
       )}
-      <nav className={"tabbar" + (page === "mehsul" ? " tabbar-hidden" : "")} aria-label="Əsas bölmələr">
+      <nav
+        className={"tabbar" + (page === "mehsul" ? " tabbar-hidden" : "")}
+        aria-label="Əsas bölmələr"
+      >
         <a href="/" aria-current={current("home")}>
           <House size={22} />
           Ana səhifə
         </a>
-        <button onClick={() => setMenu(true)} aria-current={isListing && page !== "secilmisler" && page !== "endirimler" ? "page" : undefined}>
+        <button
+          onClick={() => setMenu(true)}
+          aria-current={
+            isListing && page !== "secilmisler" && page !== "endirimler" ? "page" : undefined
+          }
+        >
           <LayoutGrid size={22} />
           Kateqoriya
         </button>
@@ -687,7 +722,10 @@ export default function ShopShell({
           <Heart size={22} />
           Seçilmiş
         </a>
-        <a href={accountHref} aria-current={page === "hesab" || page === "giris" ? "page" : undefined}>
+        <a
+          href={accountHref}
+          aria-current={page === "hesab" || page === "giris" ? "page" : undefined}
+        >
           <UserRound size={22} />
           {session.user ? "Hesab" : "Daxil ol"}
         </a>

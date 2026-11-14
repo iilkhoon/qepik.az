@@ -9,9 +9,12 @@ const stores = db
   )
   .all();
 console.log("\nTəkliflər mağaza üzrə:");
-for (const r of stores) console.log(`  ${String(r.s).padEnd(18)} ${String(r.n).padStart(6)}  stokda ${r.stock}`);
+for (const r of stores)
+  console.log(`  ${String(r.s).padEnd(18)} ${String(r.n).padStart(6)}  stokda ${r.stock}`);
 console.log("\nİdxal işləri:");
-const jobs = db.prepare("SELECT payload FROM records WHERE kind='crawlJob' ORDER BY updated_at DESC").all();
+const jobs = db
+  .prepare("SELECT payload FROM records WHERE kind='crawlJob' ORDER BY updated_at DESC")
+  .all();
 for (const r of jobs) {
   const j = JSON.parse(r.payload);
   console.log(

@@ -61,7 +61,14 @@ export default function AdminShell({ initialCatalog }: { initialCatalog: Catalog
         </div>
       </header>
       <main className="shell main-content" id="main-content">
-        <Admin c={c} session={session} refresh={refresh} toast={setToast} act={act} needUser={needUser} />
+        <Admin
+          c={c}
+          session={session}
+          refresh={refresh}
+          toast={setToast}
+          act={act}
+          needUser={needUser}
+        />
       </main>
       {toast && (
         <div className="toast" role="status">

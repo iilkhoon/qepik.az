@@ -80,8 +80,20 @@ function PriceChart({ points }: { points: { id: string; price: number; date: str
 }
 
 export default function ProductDetail({ p }: { p: Product }) {
-  const { c, city, comp, alert, favorite, compare, nav, setToast, needUser, openModal, isFavorite, personal } =
-    useShop();
+  const {
+    c,
+    city,
+    comp,
+    alert,
+    favorite,
+    compare,
+    nav,
+    setToast,
+    needUser,
+    openModal,
+    isFavorite,
+    personal,
+  } = useShop();
   const [sort, setSort] = useState("price"),
     [period, setPeriod] = useState(90),
     [free, setFree] = useState(false),
@@ -198,9 +210,7 @@ export default function ProductDetail({ p }: { p: Product }) {
             {p.brand}
           </a>
           <h1>{p.name}</h1>
-          <p className="pd-variant">
-            {[p.variant, p.distinction].filter(Boolean).join(" · ")}
-          </p>
+          <p className="pd-variant">{[p.variant, p.distinction].filter(Boolean).join(" · ")}</p>
           <div className="pd-meta">
             {reviews.length > 0 && (
               <a href="#reyler">
@@ -277,7 +287,8 @@ export default function ProductDetail({ p }: { p: Product }) {
           {trend !== 0 && previous && (
             <p className={"buybox-trend " + (trend < 0 ? "down" : "up")}>
               {trend < 0 ? <TrendingDown size={15} /> : <TrendingUp size={15} />}
-              {azDate(previous.date)} qeydindən {money(Math.abs(trend))} {trend < 0 ? "ucuz" : "baha"}
+              {azDate(previous.date)} qeydindən {money(Math.abs(trend))}{" "}
+              {trend < 0 ? "ucuz" : "baha"}
             </p>
           )}
           {bestStore && shown && (
@@ -315,11 +326,17 @@ export default function ProductDetail({ p }: { p: Product }) {
               rel="noopener noreferrer"
               onClick={(e) => go(e, shown)}
             >
-              {bestStore?.name || "Mağaza"} saytına keç <ArrowUpRight size={18} aria-hidden="true" />
+              {bestStore?.name || "Mağaza"} saytına keç{" "}
+              <ArrowUpRight size={18} aria-hidden="true" />
             </a>
           ) : (
             p.sourceUrl && (
-              <a className="btn btn-primary btn-lg" href={p.sourceUrl} target="_blank" rel="noopener noreferrer">
+              <a
+                className="btn btn-primary btn-lg"
+                href={p.sourceUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 Məhsula mağazada bax <ArrowUpRight size={18} aria-hidden="true" />
               </a>
             )
@@ -356,21 +373,33 @@ export default function ProductDetail({ p }: { p: Product }) {
           <h2 id="offers-title">Mağaza təklifləri</h2>
           <div className="offer-filters">
             <label className="toggle">
-              <input type="checkbox" checked={stockOnly} onChange={(e) => setStockOnly(e.target.checked)} />
+              <input
+                type="checkbox"
+                checked={stockOnly}
+                onChange={(e) => setStockOnly(e.target.checked)}
+              />
               Yalnız stokda
             </label>
             <label className="toggle">
               <input type="checkbox" checked={free} onChange={(e) => setFree(e.target.checked)} />
               Pulsuz çatdırılma
             </label>
-            <select aria-label="Taksit müddəti" value={term} onChange={(e) => setTerm(Number(e.target.value))}>
+            <select
+              aria-label="Taksit müddəti"
+              value={term}
+              onChange={(e) => setTerm(Number(e.target.value))}
+            >
               {[3, 6, 12, 18, 24].map((m) => (
                 <option key={m} value={m}>
                   {m} ay taksit
                 </option>
               ))}
             </select>
-            <select aria-label="Təklifləri sırala" value={sort} onChange={(e) => setSort(e.target.value)}>
+            <select
+              aria-label="Təklifləri sırala"
+              value={sort}
+              onChange={(e) => setSort(e.target.value)}
+            >
               <option value="price">Nağd qiymətə görə</option>
               <option value="installment">Taksit yekununa görə</option>
             </select>
@@ -389,7 +418,9 @@ export default function ProductDetail({ p }: { p: Product }) {
               return (
                 <li
                   key={o.id}
-                  className={"offer" + (isBest ? " offer-best" : "") + (inStock(o) ? "" : " offer-off")}
+                  className={
+                    "offer" + (isBest ? " offer-best" : "") + (inStock(o) ? "" : " offer-off")
+                  }
                 >
                   <span className="offer-rank" aria-hidden="true">
                     {i + 1}
@@ -413,7 +444,11 @@ export default function ProductDetail({ p }: { p: Product }) {
                       ) : (
                         <XCircle size={14} aria-hidden="true" />
                       )}
-                      {o.stockKnown === false ? "Stoku mağazada yoxla" : o.stock ? "Stokda var" : "Stokda yoxdur"}
+                      {o.stockKnown === false
+                        ? "Stoku mağazada yoxla"
+                        : o.stock
+                          ? "Stokda var"
+                          : "Stokda yoxdur"}
                     </li>
                     <li>
                       <Truck size={14} aria-hidden="true" />
@@ -469,7 +504,11 @@ export default function ProductDetail({ p }: { p: Product }) {
             })}
           </ol>
         ) : (
-          <Empty icon={StoreIcon} title="Uyğun təklif yoxdur" text="Şəhəri və ya təklif filtrlərini dəyiş." />
+          <Empty
+            icon={StoreIcon}
+            title="Uyğun təklif yoxdur"
+            text="Şəhəri və ya təklif filtrlərini dəyiş."
+          />
         )}
         {offers.length > 6 && (
           <button className="btn btn-ghost panel-more" onClick={() => setShowAll(!showAll)}>
@@ -488,7 +527,12 @@ export default function ProductDetail({ p }: { p: Product }) {
             <h2 id="history-title">Qiymət tarixçəsi</h2>
             <div className="segmented">
               {[30, 90, 365].map((d) => (
-                <button key={d} className={period === d ? "on" : ""} aria-pressed={period === d} onClick={() => setPeriod(d)}>
+                <button
+                  key={d}
+                  className={period === d ? "on" : ""}
+                  aria-pressed={period === d}
+                  onClick={() => setPeriod(d)}
+                >
                   {d === 365 ? "1 il" : d + " gün"}
                 </button>
               ))}
@@ -520,7 +564,10 @@ export default function ProductDetail({ p }: { p: Product }) {
               )}
             </>
           ) : (
-            <Empty title="Tarixçə hələ toplanmayıb" text="Qiymətlər yoxlandıqca qeydlər burada görünəcək." />
+            <Empty
+              title="Tarixçə hələ toplanmayıb"
+              text="Qiymətlər yoxlandıqca qeydlər burada görünəcək."
+            />
           )}
           <button className="btn btn-outline" onClick={() => alert(p)}>
             <Bell size={16} aria-hidden="true" /> Hədəf qiymət qur
@@ -570,7 +617,9 @@ export default function ProductDetail({ p }: { p: Product }) {
                 <p>{r.text}</p>
               </article>
             ))}
-            {!reviews.length && <p className="panel-note">Hələ rəy yoxdur. İlk təcrübəni sən paylaş.</p>}
+            {!reviews.length && (
+              <p className="panel-note">Hələ rəy yoxdur. İlk təcrübəni sən paylaş.</p>
+            )}
           </div>
           <form
             className="form review-form"
@@ -644,7 +693,10 @@ export default function ProductDetail({ p }: { p: Product }) {
       {shown && (
         <div className="buybar">
           <div>
-            <small>{bestStore?.name}{available.length > 1 ? " · ən ucuz" : ""}</small>
+            <small>
+              {bestStore?.name}
+              {available.length > 1 ? " · ən ucuz" : ""}
+            </small>
             <strong>{money(shown.price)}</strong>
           </div>
           <a

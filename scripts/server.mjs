@@ -14,7 +14,15 @@ const port = process.env.PORT || "3000";
 const host = process.env.HOST || "0.0.0.0";
 const child = spawn(
   process.execPath,
-  ["--no-warnings=ExperimentalWarning", "node_modules/vinext/dist/cli.js", "start", "-p", port, "-H", host],
+  [
+    "--no-warnings=ExperimentalWarning",
+    "node_modules/vinext/dist/cli.js",
+    "start",
+    "-p",
+    port,
+    "-H",
+    host,
+  ],
   { stdio: "inherit", env: { ...process.env, NODE_ENV: "production" } },
 );
 for (const signal of ["SIGINT", "SIGTERM"]) process.on(signal, () => child.kill(signal));

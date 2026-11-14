@@ -229,7 +229,10 @@ async function applicationPost(req: Request, user: User) {
       categories: z.array(id).min(1).max(17),
       cities: z.array(z.enum(AZ_CITIES)).min(1).max(AZ_CITIES.length),
       delivery: z.array(z.enum(["kuryer", "poct", "magazadan", "pulsuz"])).max(4),
-      payment: z.array(z.enum(["nagd", "kart", "taksit", "kredit", "kocurme"])).min(1).max(5),
+      payment: z
+        .array(z.enum(["nagd", "kart", "taksit", "kredit", "kocurme"]))
+        .min(1)
+        .max(5),
       feedType: z.enum(["xml", "json", "csv", "sitemap", "yoxdur"]),
       feedUrl: z
         .string()
@@ -338,7 +341,6 @@ async function clickPost(req: Request) {
   }).run();
   return json({ url: o.url });
 }
-
 
 async function adminData() {
   const kinds = [

@@ -4,7 +4,7 @@ import { withStoreSnapshots } from "./store-snapshots";
 
 // Explicit version: bump when the bundled onboarding catalog changes. Existing operator or
 // crawler records are never overwritten; refresh jobs own subsequent prices and stock.
-const version = "2026-10-29-bundled-v1";
+const version = "2026-11-14-bundled-v2";
 const markerId = "system:catalog-materialization";
 type Entry = { kind: string; value: { id: string } };
 export type CatalogMaterialization = {
