@@ -5,7 +5,7 @@ import {
   controlCrawlJob,
 } from "../../../../lib/crawl-jobs";
 import sitemapCoverage from "../../../../docs/sitemap-source-coverage.json";
-import { catalogSlice, parseCatalogQuery } from "../../../../lib/catalog-query";
+import { catalogSlice, parseCatalogQuery, suggest } from "../../../../lib/catalog-query";
 import { invalidatePublicCatalog, publicCatalog } from "../../../../lib/public-data";
 import { fetchTechnomania } from "../../../../lib/technomania";
 import { materializeCatalog } from "../../../../lib/catalog-storage";
@@ -699,6 +699,14 @@ async function route(req: Request): Promise<Response> {
   }
   if (path === "catalog" && method === "GET")
     return json(catalogSlice(await publicCatalog(), parseCatalogQuery(url.searchParams)));
+  if (path === "suggest" && method === "GET")
+    return json({
+      items: suggest(
+        await publicCatalog(),
+        url.searchParams.get("q") || "",
+        url.searchParams.get("city") || undefined,
+      ),
+    });
   if (path === "session" && method === "GET") {
     const owner = await ownerId();
     return json({

@@ -2,6 +2,7 @@
 // whole catalog, so filtering, sorting and the per-store counts are computed here.
 import {
   recordedOffersFor,
+  bestRecordedOffersFor,
   canonicalProductId,
   validOffers,
   priceOf,
@@ -20,6 +21,8 @@ export type CatalogQuery = {
   max?: number;
   sort?: string;
   real?: boolean;
+  // Only products some store has in stock right now.
+  stock?: boolean;
   city?: string;
   limit?: number;
   offset?: number;
@@ -31,7 +34,18 @@ export type CatalogQuery = {
 
 export type StoreStat = { count: number; real: boolean };
 
+export type Suggestion = {
+  id: string;
+  name: string;
+  image: string;
+  price: number;
+  stores: number;
+};
+
 export type CatalogSlice = Catalog & {
+  // Home: products whose recorded price fell; product page: comparable products.
+  drops?: string[];
+  similar?: string[];
   matched: string[];
   matchedTotal: number;
   pageOffset: number;
@@ -78,6 +92,7 @@ type Index = {
   storeStats: Record<string, StoreStat>;
   categoryStats: Record<string, { count: number; inStock: number; minPrice?: number }>;
   homeByCity: Map<string, Product[]>;
+  drops?: string[];
 };
 
 // This is also used by the homepage so its feature, category and catalog order share one rule.
@@ -90,6 +105,15 @@ function homeProducts(c: Catalog, active: Product[], city?: string) {
   const ranked = rankProductsByStoreCount(c, active, city).filter(
     (p) => validOffers(c, p.id, city).length > 0,
   );
+  // Before the first store import finishes few offers have confirmed stock; fill the page with
+  // products that at least have a recorded price.
+  if (ranked.length < 60) {
+    const have = new Set(ranked.map((p) => p.id));
+    for (const p of active) {
+      if (ranked.length >= 240) break;
+      if (!have.has(p.id) && bestRecordedOffersFor(c, p.id, city).length) ranked.push(p);
+    }
+  }
   const home = new Map(ranked.slice(0, 8).map((p) => [p.id, p]));
   const perCategory = new Map<string, number>();
   for (const p of ranked) {
@@ -220,6 +244,7 @@ export function parseCatalogQuery(params: URLSearchParams): CatalogQuery {
     max: num("max"),
     sort: params.get("sort") || undefined,
     real: params.get("real") === "1",
+    stock: params.get("stock") === "1",
     city: params.get("city") || undefined,
     limit: num("limit"),
     offset: num("offset"),
@@ -248,6 +273,7 @@ function listing(c: Catalog, x: Index, q: CatalogQuery, page: string, parts: str
     p = p.filter((p) => p.sourceStoreId === sid || ids.has(p.id));
   }
   if (q.real) p = p.filter((p) => recordedOffersFor(c, p.id).some((o) => !o.demo));
+  if (q.stock) p = p.filter((p) => validOffers(c, p.id, q.city).length > 0);
   const price = new Map<string, number>();
   const priceFor = (id: string) => {
     let v = price.get(id);
@@ -309,6 +335,68 @@ function listing(c: Catalog, x: Index, q: CatalogQuery, page: string, parts: str
   return { sorted, brands };
 }
 
+// Products whose current lowest price is below an earlier recorded price, biggest fall first.
+function priceDrops(c: Catalog, x: Index) {
+  if (!x.drops) {
+    const found: { id: string; fall: number }[] = [];
+    for (const [id, points] of x.history) {
+      const p = x.byId.get(id);
+      if (!p?.active || points.length < 2 || !validOffers(c, id).length) continue;
+      const now = priceOf(c, id);
+      const before = Math.max(...points.filter((h) => !h.demo).map((h) => h.price));
+      if (now > 0 && before > now * 1.01) found.push({ id, fall: (before - now) / before });
+    }
+    x.drops = found
+      .sort((a, b) => b.fall - a.fall)
+      .slice(0, 12)
+      .map((f) => f.id);
+  }
+  return x.drops;
+}
+
+// Same category, closest in price, sold somewhere right now.
+function similarProducts(c: Catalog, x: Index, p: Product, city?: string) {
+  const price = priceOf(c, p.id);
+  return x.active
+    .filter((o) => o.id !== p.id && o.category === p.category && o.familyId !== p.familyId)
+    .map((o) => ({ o, price: priceOf(c, o.id), stores: validOffers(c, o.id, city).length }))
+    .filter((v) => v.stores > 0 && v.price > 0)
+    .sort(
+      (a, b) =>
+        Number(b.o.brand === p.brand) - Number(a.o.brand === p.brand) ||
+        (price ? Math.abs(a.price - price) - Math.abs(b.price - price) : b.stores - a.stores),
+    )
+    .slice(0, 10)
+    .map((v) => v.o);
+}
+
+// Search-as-you-type: every word must match; products sold in more stores come first.
+export function suggest(c: Catalog, text: string, city?: string): Suggestion[] {
+  const x = indexOf(c);
+  const words = searchWords(text.slice(0, 80));
+  if (!words.length) return [];
+  const hits: { p: Product; stores: number; extra: number }[] = [];
+  for (const p of x.active) {
+    if (!words.every((w) => x.haystack.get(p.id)!.includes(w))) continue;
+    hits.push({
+      p,
+      stores: validOffers(c, p.id, city).length,
+      extra: Number(p.category === "aksesuar"),
+    });
+    if (hits.length >= 400) break;
+  }
+  return hits
+    .sort((a, b) => a.extra - b.extra || b.stores - a.stores || a.p.name.length - b.p.name.length)
+    .slice(0, 6)
+    .map(({ p, stores }) => ({
+      id: p.id,
+      name: p.name,
+      image: p.image,
+      price: priceOf(c, p.id),
+      stores,
+    }));
+}
+
 export function catalogSlice(c: Catalog, q: CatalogQuery): CatalogSlice {
   const x = indexOf(c);
   const parts = q.path.split("?")[0].split("/").filter(Boolean);
@@ -336,12 +424,20 @@ export function catalogSlice(c: Catalog, q: CatalogQuery): CatalogSlice {
     for (const p of x.homeByCity.get(cityKey)!) chosen.set(p.id, p);
     for (const id of HOME_HERO_IDS) add(id);
   }
+  const drops = page === "home" ? priceDrops(c, x) : undefined;
+  for (const id of drops || []) add(id);
+  let similar: string[] | undefined;
   add(HERO_PRODUCT);
   if (page === "mehsul") {
     const selected = x.byId.get(parts[1]);
     add(selected?.id);
     if (selected?.familyId)
       for (const p of x.active) if (p.familyId === selected.familyId) chosen.set(p.id, p);
+    if (selected) {
+      const list = similarProducts(c, x, selected, q.city);
+      similar = list.map((p) => p.id);
+      for (const p of list) chosen.set(p.id, p);
+    }
   }
   for (const id of (q.ids || []).slice(0, MAX_IDS)) add(id);
   const products = [...chosen.values()];
@@ -353,6 +449,8 @@ export function catalogSlice(c: Catalog, q: CatalogQuery): CatalogSlice {
     history: pick(x.history),
     reviews: pick(x.reviews),
     totals: { products: x.active.length, stores: c.stores.filter((s) => s.active).length },
+    drops,
+    similar,
     matched: matched.map((p) => p.id),
     matchedTotal: sorted.length,
     pageOffset,

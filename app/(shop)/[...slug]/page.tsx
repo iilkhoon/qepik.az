@@ -1,14 +1,14 @@
-import { catalogSlice, DEFAULT_CITY, PAGE_SIZE } from "../../lib/catalog-query";
-import { publicCatalog } from "../../lib/public-data";
+import { catalogSlice, DEFAULT_CITY, PAGE_SIZE } from "../../../lib/catalog-query";
+import { publicCatalog } from "../../../lib/public-data";
 import {
   listingPageNumber,
   pageSeo,
   parseRoute,
   routeDecision,
   structuredData,
-} from "../../lib/seo";
+} from "../../../lib/seo";
 import { notFound, permanentRedirect } from "next/navigation";
-import Platform from "../platform";
+import ShopShell from "../../shop/shell";
 export const dynamic = "force-dynamic";
 type Props = {
   params: Promise<{ slug: string[] }>;
@@ -46,7 +46,7 @@ export default async function Page(props: Props) {
   return (
     <>
       {jsonLd && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />}
-      <Platform initialPath={path} initialCatalog={slice} />
+      <ShopShell initialPath={path} initialCatalog={slice} />
     </>
   );
 }

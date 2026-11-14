@@ -2,7 +2,7 @@
 import type { Catalog, Offer, Point, Product, Review, Store } from "../lib/catalog";
 
 export type Session = {
-  user: { id: string; name: string } | null;
+  user: { id: string; name: string; email: string; phone: string } | null;
   admin: boolean;
   needsSetup: boolean;
 };
@@ -18,6 +18,16 @@ export type Application = {
   phone: string;
   website: string;
   voen: string;
+  legalName?: string;
+  legalForm?: string;
+  contact?: string;
+  categories?: string[];
+  cities?: string[];
+  delivery?: string[];
+  payment?: string[];
+  feedType?: string;
+  feedUrl?: string;
+  productCount?: string;
   note: string;
   status: string;
   date: string;

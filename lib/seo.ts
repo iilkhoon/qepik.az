@@ -30,6 +30,9 @@ const ROUTES: Record<string, [number, number]> = {
   secilmisler: [1, 1],
   muqayise: [1, 1],
   axtaris: [1, 1],
+  giris: [1, 1],
+  qeydiyyat: [1, 1],
+  hesab: [1, 1],
 };
 // Account, tool and search pages: never in the index.
 const PRIVATE_PAGES = new Set([
@@ -39,9 +42,12 @@ const PRIVATE_PAGES = new Set([
   "muqayise",
   "axtaris",
   "magaza-qeydiyyat",
+  "giris",
+  "qeydiyyat",
+  "hesab",
 ]);
 // Personal pages whose links are not worth following either.
-const NOFOLLOW_PAGES = new Set(["admin", "bildirisler", "secilmisler"]);
+const NOFOLLOW_PAGES = new Set(["admin", "bildirisler", "secilmisler", "hesab"]);
 const LISTING_PAGES = new Set(["kataloq", "kateqoriya", "endirimler", "magazalar"]);
 
 const STATIC_PAGES: Record<string, { title: string; description: string }> = {
@@ -84,6 +90,9 @@ const STATIC_PAGES: Record<string, { title: string; description: string }> = {
     title: "Məhsul müqayisəsi",
     description: "Seçdiyiniz məhsulların xüsusiyyətlərini və qiymətlərini yan-yana müqayisə edin.",
   },
+  giris: { title: "Daxil ol", description: "Qəpik hesabına daxil ol." },
+  qeydiyyat: { title: "Qeydiyyat", description: "Qəpik-də pulsuz hesab yarat." },
+  hesab: { title: "Hesabım", description: "Qəpik hesabın." },
   axtaris: {
     title: "Axtarış nəticələri",
     description: "Qəpik-də məhsul axtarışı.",
