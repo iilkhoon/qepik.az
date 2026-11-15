@@ -66,9 +66,11 @@ mkdir -p "$DATA"
 
 say "Kod yüklənir ($BRANCH)"
 if [ -d "$APP/.git" ]; then
-  git -C "$APP" fetch --depth 1 origin "$BRANCH"
-  git -C "$APP" reset --hard FETCH_HEAD
-  git -C "$APP" clean -fdx -e node_modules
+  # The checkout belongs to the qepik user; let root's git work in it.
+  G=(git -c safe.directory="$APP" -C "$APP")
+  "${G[@]}" fetch --depth 1 origin "$BRANCH"
+  "${G[@]}" reset --hard FETCH_HEAD
+  "${G[@]}" clean -fdx -e node_modules
 else
   rm -rf "$APP"
   git clone --depth 1 --branch "$BRANCH" "$REPO" "$APP"
