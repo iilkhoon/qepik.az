@@ -9,8 +9,8 @@ body {
 }
 :root {
   color-scheme: light;
-  --font: "Onest", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --display: "Geologica", var(--font);
+  --font: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --display: var(--font);
   --body: var(--font);
 
   --bg: #fff8f1;

@@ -1,42 +1,42 @@
 /* Qəpik storefront, V2. One file, mobile first; desktop layouts start at 900px and 1200px. */
 @font-face {
-  font-family: "Onest";
+  font-family: "Plus Jakarta Sans";
   font-style: normal;
   font-weight: 400 800;
   font-display: swap;
-  src: url(/fonts/Onest-latin-ext.woff2) format("woff2");
+  src: url(/fonts/PlusJakartaSans-latin-ext.woff2) format("woff2");
   unicode-range:
     U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
     U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F,
     U+A720-A7FF;
 }
 @font-face {
-  font-family: "Onest";
+  font-family: "Plus Jakarta Sans";
   font-style: normal;
   font-weight: 400 800;
   font-display: swap;
-  src: url(/fonts/Onest-latin.woff2) format("woff2");
+  src: url(/fonts/PlusJakartaSans-latin.woff2) format("woff2");
   unicode-range:
     U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
     U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 @font-face {
-  font-family: "Geologica";
-  font-style: normal;
-  font-weight: 400 800;
+  font-family: "Plus Jakarta Sans";
+  font-style: italic;
+  font-weight: 800;
   font-display: swap;
-  src: url(/fonts/Geologica-latin-ext.woff2) format("woff2");
+  src: url(/fonts/PlusJakartaSans-italic-latin-ext.woff2) format("woff2");
   unicode-range:
     U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
     U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F,
     U+A720-A7FF;
 }
 @font-face {
-  font-family: "Geologica";
-  font-style: normal;
-  font-weight: 400 800;
+  font-family: "Plus Jakarta Sans";
+  font-style: italic;
+  font-weight: 800;
   font-display: swap;
-  src: url(/fonts/Geologica-latin.woff2) format("woff2");
+  src: url(/fonts/PlusJakartaSans-italic-latin.woff2) format("woff2");
   unicode-range:
     U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
     U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
@@ -67,8 +67,8 @@
   --radius-sm: 10px;
   --shadow-1: 0 0 0 1px var(--line);
   --shadow-2: 0 18px 40px -12px rgb(27 18 32 / 22%), 0 0 0 1px rgb(27 18 32 / 6%);
-  --display: "Geologica", "Onest", system-ui, sans-serif;
-  --body: "Onest", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --display: "Plus Jakarta Sans", system-ui, sans-serif;
+  --body: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
   --header-h: 64px;
   --tabbar-h: 62px;
@@ -339,9 +339,9 @@ button {
   flex: none;
 }
 .logo-word {
-  font: 800 24px/1 var(--display);
-  letter-spacing: -0.045em;
-  padding-bottom: 3px;
+  font: italic 800 25px/1 var(--display);
+  letter-spacing: -0.055em;
+  padding: 0 2px 3px 0;
 }
 .logo-word b {
   color: var(--nar);
@@ -569,7 +569,7 @@ button {
   padding: 16px 12px 8px 20px;
 }
 .drawer-head h2 {
-  font: 600 18px var(--display);
+  font: 800 18px var(--display);
 }
 .drawer-list {
   overflow: auto;
@@ -749,7 +749,7 @@ button {
   margin-bottom: 12px;
 }
 .modal-heading h2 {
-  font: 600 18px var(--display);
+  font: 800 18px var(--display);
 }
 .city-list {
   display: grid;
@@ -873,7 +873,7 @@ button {
   min-width: 0;
 }
 .form legend {
-  font: 600 15px var(--display);
+  font: 800 15px var(--display);
   padding: 0;
   margin-bottom: 12px;
 }
@@ -983,7 +983,7 @@ button {
   color: var(--nar);
 }
 .empty h2 {
-  font: 600 18px var(--display);
+  font: 800 18px var(--display);
   color: var(--ink);
 }
 .empty p {
@@ -1157,7 +1157,7 @@ button {
   padding-top: 6px;
 }
 .card-price strong {
-  font: 700 19px/1.1 var(--display);
+  font: 800 19px/1.1 var(--display);
   letter-spacing: -0.03em;
 }
 .card-price s,
@@ -1272,7 +1272,7 @@ button {
   display: flex;
   align-items: center;
   gap: 8px;
-  font: 600 clamp(17px, 2.4vw, 24px) / 1.2 var(--display);
+  font: 800 clamp(17px, 2.4vw, 24px) / 1.2 var(--display);
   letter-spacing: -0.02em;
 }
 .section-head a {
@@ -1340,7 +1340,7 @@ button {
   animation: blink 1.8s ease-in-out infinite;
 }
 .hero h1 {
-  font: 700 clamp(30px, 8vw, 60px) / 1.02 var(--display);
+  font: 800 clamp(30px, 8vw, 60px) / 1.02 var(--display);
   letter-spacing: -0.04em;
   text-wrap: balance;
 }
@@ -1707,7 +1707,7 @@ button {
   padding-left: 12px;
   border-left: 1px solid var(--line);
   color: var(--mint);
-  font: 700 16px/1.15 var(--display);
+  font: 800 16px/1.15 var(--display);
   letter-spacing: -0.02em;
   white-space: nowrap;
 }
@@ -1774,7 +1774,7 @@ button {
   position: absolute;
   top: 12px;
   right: 14px;
-  font: 700 26px var(--display);
+  font: 800 26px var(--display);
   color: #efecf3;
 }
 .step b {
@@ -1800,15 +1800,30 @@ button {
 .marquee:focus-within .marquee-track {
   animation-play-state: paused;
 }
+.marquee-track {
+  align-items: stretch;
+}
 .marquee a {
   display: grid;
+  grid-template-rows: 44px auto;
   justify-items: center;
-  gap: 6px;
-  min-width: 150px;
-  padding: 14px 16px 10px;
+  align-content: center;
+  gap: 8px;
+  width: 176px;
+  height: 104px;
+  padding: 12px 14px;
   border-radius: var(--radius);
   background: var(--surface);
   box-shadow: var(--shadow-1);
+}
+.marquee .merchant-logo {
+  height: 44px;
+  min-height: 0;
+  max-width: 100%;
+  overflow: hidden;
+}
+.marquee .merchant-logo img {
+  max-height: 40px;
 }
 .marquee small {
   color: var(--muted);
@@ -1823,7 +1838,7 @@ button {
   background: var(--nar);
 }
 .merchant-band h2 {
-  font: 600 clamp(18px, 2.6vw, 26px) / 1.2 var(--display);
+  font: 800 clamp(18px, 2.6vw, 26px) / 1.2 var(--display);
   letter-spacing: -0.02em;
 }
 .merchant-band p {
@@ -1839,7 +1854,7 @@ button {
   gap: 16px;
 }
 .faq-intro h2 {
-  font: 600 clamp(18px, 2.4vw, 24px) / 1.2 var(--display);
+  font: 800 clamp(18px, 2.4vw, 24px) / 1.2 var(--display);
 }
 .faq-intro p {
   color: var(--muted);
@@ -1928,7 +1943,7 @@ button {
 }
 .listing-head h1,
 .page-head h1 {
-  font: 600 clamp(20px, 3.4vw, 32px) / 1.15 var(--display);
+  font: 800 clamp(20px, 3.4vw, 32px) / 1.15 var(--display);
   letter-spacing: -0.025em;
 }
 .listing-head p,
@@ -1989,7 +2004,7 @@ button {
 }
 .filters-head h2 {
   flex: 1;
-  font: 600 17px var(--display);
+  font: 800 17px var(--display);
 }
 .filters-close {
   width: 40px;
@@ -2268,7 +2283,7 @@ a.page-next:hover {
   color: var(--nar-deep);
 }
 .pd-info h1 {
-  font: 600 clamp(19px, 3vw, 28px) / 1.2 var(--display);
+  font: 800 clamp(19px, 3vw, 28px) / 1.2 var(--display);
   letter-spacing: -0.025em;
 }
 .pd-variant {
@@ -2375,7 +2390,7 @@ a.page-next:hover {
   gap: 4px 12px;
 }
 .buybox-price strong {
-  font: 700 clamp(30px, 5vw, 40px) / 1 var(--display);
+  font: 800 clamp(30px, 5vw, 40px) / 1 var(--display);
   letter-spacing: -0.04em;
 }
 .buybox-price s {
@@ -2494,7 +2509,7 @@ a.page-next:hover {
   gap: 10px 16px;
 }
 .panel-head h2 {
-  font: 600 clamp(16px, 2.2vw, 20px) / 1.2 var(--display);
+  font: 800 clamp(16px, 2.2vw, 20px) / 1.2 var(--display);
   letter-spacing: -0.02em;
 }
 .panel-note {
@@ -2975,7 +2990,7 @@ a.page-next:hover {
   box-shadow: var(--shadow-2);
 }
 .auth-form h1 {
-  font: 600 22px var(--display);
+  font: 800 22px var(--display);
   letter-spacing: -0.02em;
 }
 .auth-tabs {
@@ -3016,7 +3031,7 @@ a.page-next:hover {
   border-radius: 18px;
   background: var(--nar);
   color: #fff;
-  font: 600 22px var(--display);
+  font: 800 22px var(--display);
 }
 .tiles {
   display: grid;
@@ -3039,7 +3054,7 @@ a.page-next:hover {
   margin-bottom: 6px;
 }
 .tiles b {
-  font: 600 22px var(--display);
+  font: 800 22px var(--display);
 }
 .tiles span {
   color: var(--muted);
@@ -3077,7 +3092,7 @@ a.page-next:hover {
   background: var(--night);
 }
 .merchant-pitch h1 {
-  font: 700 clamp(24px, 4vw, 38px) / 1.12 var(--display);
+  font: 800 clamp(24px, 4vw, 38px) / 1.12 var(--display);
   letter-spacing: -0.03em;
 }
 .merchant-pitch h1 span,
@@ -3107,7 +3122,7 @@ a.page-next:hover {
   place-items: center;
   border-radius: 12px;
   background: rgb(255 255 255 / 14%);
-  font: 600 14px var(--display);
+  font: 800 14px var(--display);
 }
 .merchant-pitch li span {
   color: #d7b9cb;
@@ -3123,7 +3138,7 @@ a.page-next:hover {
   background: var(--night);
 }
 .guide-hero h1 {
-  font: 700 clamp(24px, 4.4vw, 42px) / 1.12 var(--display);
+  font: 800 clamp(24px, 4.4vw, 42px) / 1.12 var(--display);
   letter-spacing: -0.03em;
 }
 .guide-hero h1 span {
@@ -3146,7 +3161,7 @@ a.page-next:hover {
   box-shadow: var(--shadow-1);
 }
 .guide span {
-  font: 700 13px var(--display);
+  font: 800 13px var(--display);
   color: var(--nar);
 }
 .guide h2 {
@@ -3229,7 +3244,7 @@ a.page-next:hover {
   text-align: center;
 }
 .nf-code {
-  font: 700 72px/1 var(--display);
+  font: 800 72px/1 var(--display);
   background: none;
   color: var(--nar);
   -webkit-background-clip: text;
@@ -3237,7 +3252,7 @@ a.page-next:hover {
   color: transparent;
 }
 .nf-card h1 {
-  font: 600 22px var(--display);
+  font: 800 22px var(--display);
 }
 .nf-card p {
   color: var(--muted);
@@ -3854,7 +3869,7 @@ a.page-next:hover {
     border-radius: 50%;
     background: var(--ink);
     color: #fff;
-    font: 600 11px var(--display);
+    font: 800 11px var(--display);
   }
   .offer-best .offer-rank {
     background: var(--mint);
@@ -3899,7 +3914,7 @@ a.page-next:hover {
     background: var(--night);
   }
   .auth-side h2 {
-    font: 700 30px/1.15 var(--display);
+    font: 800 30px/1.15 var(--display);
     letter-spacing: -0.03em;
   }
   .auth-side ul {
@@ -4037,5 +4052,115 @@ a.page-next:hover {
   .cats-icon {
     background: var(--plate);
     box-shadow: none;
+  }
+}
+
+/* Product page: store prices at a glance (wide screens only; phones get the offer list right below). */
+.pd-glance {
+  display: none;
+}
+@media (min-width: 900px) {
+  .pd-glance {
+    display: grid;
+    gap: 12px;
+    margin-top: 6px;
+    padding: 16px 18px;
+    border-radius: var(--radius);
+    background: var(--surface);
+    box-shadow: 0 0 0 1px var(--line);
+    transition: box-shadow 0.25s var(--ease);
+  }
+  .pd-glance:hover {
+    box-shadow:
+      0 0 0 1px var(--line-strong),
+      0 14px 30px -16px rgb(27 18 32 / 25%);
+  }
+  .pd-glance-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 10px;
+  }
+  .pd-glance-head small {
+    color: var(--muted);
+    font-weight: 600;
+  }
+  .pd-glance ol {
+    display: grid;
+    gap: 10px;
+  }
+  .pd-glance li {
+    display: grid;
+    grid-template-columns: 150px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 12px;
+    animation: rise 0.5s var(--ease) both;
+    animation-delay: calc(var(--i) * 80ms + 150ms);
+  }
+  .pd-glance li .merchant-logo {
+    justify-content: flex-start;
+    font-size: 13px;
+  }
+  .pd-glance i {
+    height: 8px;
+    border-radius: 4px;
+    background: var(--plate);
+    overflow: hidden;
+  }
+  .pd-glance em {
+    display: block;
+    height: 100%;
+    border-radius: 4px;
+    background: var(--line-strong);
+    transform-origin: left;
+    animation: bar 0.8s var(--ease) both;
+    animation-delay: calc(var(--i) * 80ms + 250ms);
+  }
+  .pd-glance li:first-child em {
+    background: var(--mint);
+  }
+  .pd-glance strong {
+    font-weight: 800;
+    white-space: nowrap;
+  }
+  .pd-glance strong.is-low {
+    color: var(--mint);
+  }
+  .pd-glance-more {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--nar-deep);
+    font-size: 13px;
+    font-weight: 800;
+  }
+
+  /* The buy box floats in slightly turned, like the home page price card, and settles on hover. */
+  .pd-top {
+    perspective: 1400px;
+  }
+  .buybox {
+    transform: rotateY(-7deg) rotateX(2deg);
+    transform-origin: right center;
+    animation: buybox-in 0.8s var(--ease) both;
+    transition:
+      transform 0.5s var(--ease),
+      box-shadow 0.5s var(--ease);
+  }
+  .buybox:hover {
+    transform: none;
+  }
+}
+@keyframes buybox-in {
+  from {
+    opacity: 0;
+    transform: rotateY(-22deg) rotateX(6deg) translateX(30px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .buybox,
+  .pd-glance li,
+  .pd-glance em {
+    animation: none;
   }
 }

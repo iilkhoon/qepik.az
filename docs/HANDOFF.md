@@ -28,7 +28,7 @@ certificates). Re-running it updates the code and keeps the data. Settings live 
 - In-process scheduler `lib/scheduler.ts`: loads `seed/catalog.jsonl.gz` once, syncs the Technomania
   feed hourly, and runs store crawls (`lib/crawl-jobs.ts`, `lib/crawl-sources.ts`). `CRAWL=off`
   disables crawling.
-- Storefront: `app/(shop)` + `app/shop/*` + `app/v2.css` (fonts Geologica + Onest, self-hosted).
+- Storefront: `app/(shop)` + `app/shop/*` + `app/v2.css` (font Plus Jakarta Sans, self-hosted).
   Admin: `app/(panel)/admin`.
 - Demonstration product pages for filming (`app/shop/sample.tsx`, list in `lib/samples.ts`):
   `/testmehsul` (Apple iPhone Duo), `/testsoyuducu`, `/testkombi`, `/testpaltaryuyan`,

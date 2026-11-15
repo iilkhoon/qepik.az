@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Geologica:wght@500..800&family=Onest:wght@400..800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400..800;1,800&display=swap");
 :root {
   --paper: #f7f8f9;
   --ink: #233a32;
@@ -1445,6 +1445,7 @@ input[type="checkbox"] {
 /* Wordmark shared with the storefront: "qəpik" with the ə in brand colour. */
 .logo-word {
   font-family: var(--display, inherit);
+  font-style: italic;
   font-weight: 800;
   letter-spacing: -0.045em;
 }

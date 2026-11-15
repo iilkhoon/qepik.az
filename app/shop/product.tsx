@@ -1,5 +1,5 @@
 "use client";
-import { useState, type MouseEvent } from "react";
+import { useState, type CSSProperties, type MouseEvent } from "react";
 import {
   ArrowUpRight,
   Bell,
@@ -273,6 +273,41 @@ export default function ProductDetail({ p, sample = false }: { p: Product; sampl
           {specs.length > 6 && (
             <a className="link" href="#xususiyyetler">
               Bütün xüsusiyyətlər <ChevronRight size={14} />
+            </a>
+          )}
+          {recorded.length > 1 && (
+            // Wide screens: a quick look at the store prices, so the column is not left empty.
+            <a className="pd-glance" href="#teklifler">
+              <span className="pd-glance-head">
+                <b>Mağaza qiymətləri</b>
+                <small>
+                  {money(recorded[0].price)} – {money(Math.max(...recorded.map((o) => o.price)))}
+                </small>
+              </span>
+              <ol>
+                {recorded.slice(0, 4).map((o, i) => {
+                  const s = c.stores.find((x) => x.id === o.storeId)!;
+                  const top = Math.max(...recorded.map((x) => x.price));
+                  const low = recorded[0].price;
+                  return (
+                    <li key={o.id} style={{ "--i": i } as CSSProperties}>
+                      <StoreLogo store={s} />
+                      <i aria-hidden="true">
+                        <em
+                          style={{
+                            width:
+                              (top > low ? 35 + ((o.price - low) / (top - low)) * 65 : 100) + "%",
+                          }}
+                        />
+                      </i>
+                      <strong className={i === 0 ? "is-low" : ""}>{money(o.price)}</strong>
+                    </li>
+                  );
+                })}
+              </ol>
+              <span className="pd-glance-more">
+                Bütün {recorded.length} təklifə bax <ChevronRight size={14} aria-hidden="true" />
+              </span>
             </a>
           )}
         </div>
