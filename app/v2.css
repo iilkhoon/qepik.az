@@ -4206,21 +4206,22 @@ a.page-next:hover {
   z-index: 1;
   transform-style: preserve-3d;
   transform-origin: 50% 60%;
+  will-change: transform;
   animation:
-    card-flip 0.9s var(--ease) both,
-    card-float 7s ease-in-out 0.9s infinite;
+    card-flip 0.6s var(--ease) both,
+    card-float 7s ease-in-out infinite;
 }
-.stage:hover .stage-card,
-.stage:focus-within .stage-card {
-  animation-play-state: paused;
+.stage:hover .stage-card {
+  animation-play-state: running, paused;
 }
 @keyframes card-flip {
   from {
     opacity: 0;
-    transform: rotateY(-75deg) rotateX(8deg) translateX(40px);
+    translate: 24px 0;
   }
   to {
-    transform: rotateY(-10deg) rotateX(5deg);
+    opacity: 1;
+    translate: 0 0;
   }
 }
 @keyframes card-float {
@@ -4339,8 +4340,8 @@ a.page-next:hover {
     padding: 14px;
     border-radius: 18px;
     animation:
-      card-flip 0.9s var(--ease) both,
-      card-float-sm 7s ease-in-out 0.9s infinite;
+      card-flip 0.6s var(--ease) both,
+      card-float-sm 7s ease-in-out infinite;
   }
   .stage-photo {
     width: 58px;
@@ -4413,16 +4414,5 @@ a.page-next:hover {
   }
   50% {
     transform: rotateY(-1deg) rotateX(1deg) translateY(-6px);
-  }
-}
-@media (max-width: 899px) {
-  @keyframes card-flip {
-    from {
-      opacity: 0;
-      transform: rotateY(-60deg) translateX(30px);
-    }
-    to {
-      transform: rotateY(-5deg) rotateX(3deg);
-    }
   }
 }

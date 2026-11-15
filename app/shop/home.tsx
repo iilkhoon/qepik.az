@@ -57,7 +57,8 @@ function PriceStage({ items }: { items: Product[] }) {
     }, STAGE_INTERVAL);
     return () => window.clearInterval(t);
   }, [items.length, paused]);
-  const p = items[front];
+  // The list can shrink when the catalog refreshes; never point past its end.
+  const p = items[front % items.length];
   const offers = validOffers(c, p.id, city);
   const shown = offers.slice(0, 4);
   const high = Math.max(...offers.map((o) => o.price));
@@ -65,10 +66,9 @@ function PriceStage({ items }: { items: Product[] }) {
   return (
     <div
       className="stage"
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-      onFocus={() => setPaused(true)}
-      onBlur={() => setPaused(false)}
+      // Only a mouse resting on the card holds it; a tap on a phone must not stop the rotation.
+      onPointerEnter={(e) => e.pointerType === "mouse" && setPaused(true)}
+      onPointerLeave={() => setPaused(false)}
     >
       <div className="stage-card" key={p.id}>
         <a className="stage-product" href={"/mehsul/" + p.id}>
