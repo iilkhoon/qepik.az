@@ -12,9 +12,7 @@ export default function NotFound() {
       <div className="nf-card">
         <a className="logo" href="/" aria-label="Qəpik ana səhifə">
           <img src="/favicon.svg" alt="" width={36} height={36} />
-          <span className="logo-word">
-            q<b>ə</b>pik
-          </span>
+          <img className="logo-word" src="/logo-word.svg" alt="qəpik" width={110} height={52} />
         </a>
         <span className="nf-code" aria-hidden="true">
           404

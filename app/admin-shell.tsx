@@ -53,9 +53,7 @@ export default function AdminShell({ initialCatalog }: { initialCatalog: Catalog
         <div className="shell header-main">
           <a className="logo" aria-label="Qəpik ana səhifə" href="/">
             <img className="brand-mark" src="/favicon.svg" alt="" width={42} height={42} />
-            <span className="logo-word">
-              q<b>ə</b>pik
-            </span>
+            <img className="logo-word" src="/logo-word.svg" alt="qəpik" width={110} height={52} />
           </a>
           <a className="outline-button" href="/">
             <ArrowLeft size={16} /> Sayta qayıt
