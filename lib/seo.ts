@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { isSamplePage } from "./samples";
 import {
   bestRecordedOffersFor,
   categories,
@@ -35,7 +36,6 @@ const ROUTES: Record<string, [number, number]> = {
   giris: [1, 1],
   qeydiyyat: [1, 1],
   hesab: [1, 1],
-  testmehsul: [1, 1],
 };
 // Account, tool and search pages: never in the index.
 const PRIVATE_PAGES = new Set([
@@ -48,7 +48,6 @@ const PRIVATE_PAGES = new Set([
   "giris",
   "qeydiyyat",
   "hesab",
-  "testmehsul",
 ]);
 // Personal pages whose links are not worth following either.
 const NOFOLLOW_PAGES = new Set(["admin", "bildirisler", "secilmisler", "hesab"]);
@@ -97,10 +96,6 @@ const STATIC_PAGES: Record<string, { title: string; description: string }> = {
   giris: { title: "Daxil ol", description: "Qəpik hesabına daxil ol." },
   qeydiyyat: { title: "Qeydiyyat", description: "Qəpik-də pulsuz hesab yarat." },
   hesab: { title: "Hesabım", description: "Qəpik hesabın." },
-  testmehsul: {
-    title: "iPhone Duo — nümunə səhifə",
-    description: "Qəpik məhsul səhifəsinin nümunəsi.",
-  },
   axtaris: {
     title: "Axtarış nəticələri",
     description: "Qəpik-də məhsul axtarışı.",
@@ -218,7 +213,7 @@ export type RouteDecision =
 // Status for a catch-all path: 404 for unknown routes, permanent redirects to the canonical slug.
 export function routeDecision(path: string, c: Catalog): RouteDecision {
   const { parts, page, params } = parseRoute(path);
-  const limits = ROUTES[page];
+  const limits = isSamplePage(page) ? ([1, 1] as [number, number]) : ROUTES[page];
   if (!limits || parts.length < limits[0] || parts.length > limits[1]) return { kind: "notFound" };
   const query = params.size ? "?" + params.toString() : "";
   const id = parts[1];
@@ -331,6 +326,9 @@ export function pageSeo(path: string, c: Catalog): Metadata {
     description = q
       ? `“${q}” üçün Azərbaycan mağazalarındakı məhsullar və qiymətlər.`
       : STATIC_PAGES.axtaris.description;
+  } else if (isSamplePage(page)) {
+    title = "Nümunə məhsul səhifəsi";
+    description = "Qəpik məhsul səhifəsinin nümunəsi; mağaza adları və qiymətlər şərtidir.";
   } else if (fixed) {
     title = fixed.title + pageSuffix;
     description = fixed.description;
@@ -341,7 +339,7 @@ export function pageSeo(path: string, c: Catalog): Metadata {
   }
   description = clampDescription(description);
 
-  const privatePage = PRIVATE_PAGES.has(page);
+  const privatePage = PRIVATE_PAGES.has(page) || isSamplePage(page);
   const filtered = hasNonCanonicalParams(params, page);
   const index = !privatePage && !filtered && !empty;
   const canonical = SITE_URL + canonicalPath + (pageNo && !filtered ? "?page=" + pageNo : "");

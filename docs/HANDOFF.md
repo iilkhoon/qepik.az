@@ -30,8 +30,10 @@ certificates). Re-running it updates the code and keeps the data. Settings live 
   disables crawling.
 - Storefront: `app/(shop)` + `app/shop/*` + `app/v2.css` (fonts Geologica + Onest, self-hosted).
   Admin: `app/(panel)/admin`.
-- `/testmehsul`: demonstration product "iPhone Duo" with invented sellers (`app/shop/sample.tsx`),
-  noindex, links do not leave the page. Meant for filming.
+- Demonstration product pages for filming (`app/shop/sample.tsx`, list in `lib/samples.ts`):
+  `/testmehsul` (Apple iPhone Duo), `/testsoyuducu`, `/testkombi`, `/testpaltaryuyan`,
+  `/testqabyuyan`. Real products and photos (`public/testmehsul/`), invented stores with their own
+  logos, prices and reviews. Noindex, blocked in robots.txt, links never leave the page.
 
 ## Known gaps
 

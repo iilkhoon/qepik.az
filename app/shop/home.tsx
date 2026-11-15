@@ -1,22 +1,13 @@
 "use client";
 import { useEffect, useState } from "react";
-import {
-  ArrowRight,
-  ArrowUpRight,
-  BellRing,
-  ChevronRight,
-  MousePointerClick,
-  Search,
-  Store as StoreIcon,
-  TrendingDown,
-  Zap,
-} from "lucide-react";
+import { ArrowRight, ArrowUpRight, ChevronRight, Search, TrendingDown } from "lucide-react";
 import {
   bestRecordedOffersFor,
   categories,
   money,
   validOffers,
   type Product,
+  shownVariant,
 } from "../../lib/catalog";
 import { rankProductsByStoreCount } from "../../lib/catalog-query";
 import { CategoryIcon, StoreLogo } from "../ui";
@@ -87,7 +78,7 @@ function PriceStage({ items }: { items: Product[] }) {
           <span className="stage-name">
             <small>Canlı müqayisə</small>
             <b>{p.name}</b>
-            {p.variant && <span>{p.variant}</span>}
+            {shownVariant(p) && <span>{shownVariant(p)}</span>}
           </span>
         </a>
         <ol className="stage-rows" aria-label={p.name + " — mağaza qiymətləri"}>
@@ -260,10 +251,10 @@ export default function Home() {
             </a>
           </div>
           <div className="cats">
-            {availableCategories.map((cat, i) => (
-              <a key={cat.id} href={"/kateqoriya/" + cat.id} data-tone={i % 6}>
+            {availableCategories.map((cat) => (
+              <a key={cat.id} href={"/kateqoriya/" + cat.id}>
                 <span className="cats-icon">
-                  <CategoryIcon name={cat.icon} size={26} />
+                  <CategoryIcon name={cat.icon} size={24} strokeWidth={1.75} />
                 </span>
                 <b>{cat.name}</b>
                 <small>{azNumber(c.categoryStats[cat.id].count)} məhsul</small>
@@ -337,9 +328,8 @@ export default function Home() {
                     </small>
                   </span>
                   <span className="gap-save">
-                    <Zap size={14} aria-hidden="true" />
-                    {money(Math.round(high - low.price))}
                     <small>qənaət</small>
+                    {money(Math.round(high - low.price))}
                   </span>
                 </a>
               );
@@ -377,24 +367,6 @@ export default function Home() {
           </div>
         </section>
       )}
-
-      <section className="section steps" aria-label="Qəpik necə işləyir">
-        {(
-          [
-            [Search, "Axtar", "Məhsulun adını, modelini və ya brendini yaz."],
-            [StoreIcon, "Müqayisə et", "Qiymət, çatdırılma və taksit yekununu yan-yana gör."],
-            [MousePointerClick, "Mağazaya keç", "Ən sərfəli təklifi seç, alışı mağazada tamamla."],
-            [BellRing, "Qiyməti izlə", "Hədəf qiymət qur, düşəndə bildirişlərində gör."],
-          ] as const
-        ).map(([Icon, title, text], i) => (
-          <div className="step" key={title}>
-            <span className="step-no">{i + 1}</span>
-            <Icon size={26} aria-hidden="true" />
-            <b>{title}</b>
-            <p>{text}</p>
-          </div>
-        ))}
-      </section>
 
       {stores.length > 0 && (
         <section className="section" aria-labelledby="home-stores">

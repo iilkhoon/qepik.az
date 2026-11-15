@@ -34,6 +34,7 @@ import Home from "./home";
 import Listing from "./listing";
 import ProductDetail from "./product";
 import SamplePage from "./sample";
+import { isSamplePage } from "../../lib/samples";
 import {
   Account,
   Alerts,
@@ -418,7 +419,6 @@ export default function ShopShell({
     "bildirisler",
     "magaza-qeydiyyat",
     "rehber",
-    "testmehsul",
     "giris",
     "qeydiyyat",
     "hesab",
@@ -620,8 +620,8 @@ export default function ShopShell({
         {page === "giris" && <AuthPage mode="login" />}
         {page === "qeydiyyat" && <AuthPage mode="register" />}
         {page === "hesab" && <Account />}
-        {page === "testmehsul" && <SamplePage />}
-        {!known.includes(page) && (
+        {isSamplePage(page) && <SamplePage key={page} slug={page} />}
+        {!known.includes(page) && !isSamplePage(page) && (
           <Empty
             title="Səhifə tapılmadı"
             text="Axtardığın səhifə mövcud deyil."
@@ -705,7 +705,7 @@ export default function ShopShell({
         </div>
       )}
       <nav
-        className={"tabbar" + (page === "mehsul" || page === "testmehsul" ? " tabbar-hidden" : "")}
+        className={"tabbar" + (page === "mehsul" || isSamplePage(page) ? " tabbar-hidden" : "")}
         aria-label="Əsas bölmələr"
       >
         <a href="/" aria-current={current("home")}>

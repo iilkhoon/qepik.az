@@ -1,7 +1,13 @@
 "use client";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { ChevronLeft, ChevronRight, CreditCard, Heart, Scale, Truck, Zap } from "lucide-react";
-import { bestRecordedOffersFor, money, validOffers, type Product } from "../../lib/catalog";
+import { ChevronLeft, ChevronRight, CreditCard, Heart, Scale, Truck } from "lucide-react";
+import {
+  bestRecordedOffersFor,
+  money,
+  shownVariant,
+  validOffers,
+  type Product,
+} from "../../lib/catalog";
 import { ProductImage } from "../../components/product-image";
 import { cheapestCredit, useShop } from "./context";
 
@@ -43,12 +49,7 @@ export function ProductCard({ p, rank }: { p: Product; rank?: number }) {
       </a>
       <div className="card-flags">
         {rank !== undefined && <span className="flag flag-rank">{rank}</span>}
-        {worthSaving && (
-          <span className="flag flag-save">
-            <Zap size={12} aria-hidden="true" />
-            {money(Math.round(save))} fərq
-          </span>
-        )}
+        {worthSaving && <span className="flag flag-save">−{money(Math.round(save))}</span>}
         {state && <span className="flag flag-muted">{state}</span>}
       </div>
       <div className="card-tools">
@@ -76,9 +77,7 @@ export function ProductCard({ p, rank }: { p: Product; rank?: number }) {
         <a className="card-title" href={href}>
           {p.name}
         </a>
-        {(p.variant || p.distinction) && (
-          <p className="card-variant">{[p.variant, p.distinction].filter(Boolean).join(" · ")}</p>
-        )}
+        {shownVariant(p) && <p className="card-variant">{shownVariant(p)}</p>}
         <div className="card-price">
           <strong>{low ? money(low.price) : "Qiymət yoxdur"}</strong>
           {low && available.length > 1 && high > low.price && <s>{money(high)}</s>}
@@ -101,9 +100,9 @@ export function ProductCard({ p, rank }: { p: Product; rank?: number }) {
         <a className="card-cta" href={href} aria-label={p.name + " — mağaza qiymətlərinə bax"}>
           <span>
             {available.length > 1
-              ? available.length + " mağazada müqayisə et"
+              ? available.length + " mağazada"
               : available.length === 1
-                ? (store?.name || "Mağaza") + " qiymətinə bax"
+                ? store?.name || "Mağazaya bax"
                 : offers.length
                   ? "Son qiymətə bax"
                   : "Məhsula bax"}

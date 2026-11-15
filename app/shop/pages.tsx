@@ -17,7 +17,7 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-import { categories, money, priceOf, validOffers } from "../../lib/catalog";
+import { categories, money, priceOf, shownVariant, validOffers } from "../../lib/catalog";
 import { api, Empty, errorMessage, StoreLogo } from "../ui";
 import { ProductImage } from "../../components/product-image";
 import { azDate, azNumber } from "../../components/format";
@@ -139,7 +139,7 @@ export function Compare() {
                       <ProductImage src={p.image} alt="" width={140} height={140} />
                       <b>{p.name}</b>
                     </a>
-                    <small>{p.variant}</small>
+                    <small>{shownVariant(p)}</small>
                   </th>
                 ))}
               </tr>

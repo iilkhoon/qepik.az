@@ -176,9 +176,12 @@ const helpersUrl =
     }).outputText,
   ).toString("base64");
 const { validOffers, bestRecordedOffersFor } = await import(helpersUrl);
+const samplesUrl = moduleUrl("lib/samples.ts");
 const { catalogSlice, rankProductsByStoreCount } = await import(
   moduleUrl("lib/catalog-query.ts", (code) =>
-    code.replace('"./catalog"', JSON.stringify(helpersUrl)),
+    code
+      .replace('"./catalog"', JSON.stringify(helpersUrl))
+      .replace('"./samples"', JSON.stringify(samplesUrl)),
   )
 );
 const product = (id, category = "telefon", extra = {}) => ({

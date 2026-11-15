@@ -28,6 +28,7 @@ import {
   validOffers,
   type Offer,
   type Product,
+  shownVariant,
 } from "../../lib/catalog";
 import { api, Empty, errorMessage, StoreLogo } from "../ui";
 import { ProductImage } from "../../components/product-image";
@@ -217,7 +218,7 @@ export default function ProductDetail({ p, sample = false }: { p: Product; sampl
             {p.brand}
           </a>
           <h1>{p.name}</h1>
-          <p className="pd-variant">{[p.variant, p.distinction].filter(Boolean).join(" · ")}</p>
+          {shownVariant(p) && <p className="pd-variant">{shownVariant(p)}</p>}
           <div className="pd-meta">
             {reviews.length > 0 && (
               <a href="#reyler">

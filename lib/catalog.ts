@@ -99,6 +99,11 @@ export function canonicalProductId(c: Pick<Catalog, "productAliases">, id: strin
     ? c.productAliases[id]
     : id;
 }
+// Placeholder variants written by importers say nothing to a shopper.
+export function shownVariant(p: Pick<Product, "variant" | "distinction">) {
+  const v = /^(Mənbədəki model|Variant mağazada seçilir)$/.test(p.variant) ? "" : p.variant;
+  return [v, p.distinction].filter(Boolean).join(" · ");
+}
 export const categories = [
   { id: "telefon", name: "Telefonlar", icon: "phone" },
   { id: "noutbuk", name: "Noutbuklar", icon: "laptop" },

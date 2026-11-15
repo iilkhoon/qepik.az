@@ -1,5 +1,6 @@
 // Server-side listing for the storefront. The browser asks for one page of products instead of the
 // whole catalog, so filtering, sorting and the per-store counts are computed here.
+import { SAMPLE_PAGES, isSamplePage } from "./samples";
 import {
   recordedOffersFor,
   bestRecordedOffersFor,
@@ -424,9 +425,17 @@ export function catalogSlice(c: Catalog, q: CatalogQuery): CatalogSlice {
     for (const p of x.homeByCity.get(cityKey)!) chosen.set(p.id, p);
     for (const id of HOME_HERO_IDS) add(id);
   }
-  const drops = page === "home" || page === "testmehsul" ? priceDrops(c, x) : undefined;
+  const drops = page === "home" || isSamplePage(page) ? priceDrops(c, x) : undefined;
   for (const id of drops || []) add(id);
   let similar: string[] | undefined;
+  if (isSamplePage(page)) {
+    // Real products from the same category, compared in more than one store.
+    const list = x.active
+      .filter((p) => p.category === SAMPLE_PAGES[page] && (x.offers.get(p.id)?.length || 0) > 1)
+      .slice(0, 10);
+    similar = list.map((p) => p.id);
+    for (const p of list) chosen.set(p.id, p);
+  }
   add(HERO_PRODUCT);
   if (page === "mehsul") {
     const selected = x.byId.get(parts[1]);

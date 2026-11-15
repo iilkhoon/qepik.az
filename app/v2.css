@@ -56,17 +56,17 @@
   --amber: #a45c00;
   --amber-soft: #fff3d9;
   --red: #c0271d;
-  --bg: #f5f4f8;
+  --bg: #f6f4f0;
   --surface: #fff;
-  --plate: #f7f6fa;
+  --plate: #f4f2ee;
   --ink: #1b1220;
-  --muted: #655c6d;
-  --line: #e7e3ec;
-  --line-strong: #cfc9d6;
+  --muted: #6a6170;
+  --line: #e8e3db;
+  --line-strong: #d3ccc1;
   --radius: 16px;
   --radius-sm: 10px;
-  --shadow-1: 0 1px 2px rgb(27 18 32 / 6%), 0 4px 14px rgb(27 18 32 / 5%);
-  --shadow-2: 0 10px 30px rgb(27 18 32 / 12%), 0 2px 6px rgb(27 18 32 / 6%);
+  --shadow-1: 0 0 0 1px var(--line);
+  --shadow-2: 0 18px 40px -12px rgb(27 18 32 / 22%), 0 0 0 1px rgb(27 18 32 / 6%);
   --display: "Geologica", "Onest", system-ui, sans-serif;
   --body: "Onest", system-ui, -apple-system, "Segoe UI", sans-serif;
   --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
@@ -197,13 +197,11 @@ button {
   border-radius: 14px;
 }
 .btn-primary {
-  background: linear-gradient(135deg, #f02567, var(--nar) 55%, var(--nar-deep));
+  background: var(--nar);
   color: #fff;
-  box-shadow: 0 6px 18px rgb(220 22 88 / 32%);
 }
 .btn-primary:hover {
-  box-shadow: 0 10px 26px rgb(220 22 88 / 42%);
-  transform: translateY(-1px);
+  background: var(--nar-deep);
 }
 .btn-outline {
   background: var(--surface);
@@ -1001,10 +999,11 @@ button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 34px;
-  max-width: 130px;
+  min-height: 34px;
+  max-width: 170px;
   font-weight: 800;
   font-size: 14px;
+  line-height: 1.2;
 }
 .merchant-logo img {
   max-height: 100%;
@@ -1046,7 +1045,7 @@ button {
   min-width: 0;
   background: var(--surface);
   border-radius: var(--radius);
-  box-shadow: var(--shadow-1);
+  box-shadow: 0 0 0 1px var(--line);
   overflow: hidden;
   transition:
     transform 0.3s var(--ease),
@@ -1056,10 +1055,9 @@ button {
   display: grid;
   place-items: center;
   aspect-ratio: 1;
-  margin: 8px 8px 0;
-  padding: 12px;
-  border-radius: 12px;
-  background: var(--plate);
+  padding: 16px;
+  background: #fff;
+  border-bottom: 1px solid var(--line);
 }
 .card-media img,
 .card-media .image-fallback {
@@ -1095,9 +1093,9 @@ button {
   display: grid;
   place-items: center;
   border-radius: 50%;
-  background: rgb(255 255 255 / 92%);
+  background: rgb(255 255 255 / 94%);
   color: var(--muted);
-  box-shadow: 0 2px 8px rgb(27 18 32 / 12%);
+  box-shadow: 0 0 0 1px var(--line);
   transition:
     transform 0.2s var(--ease),
     color 0.2s,
@@ -1135,9 +1133,10 @@ button {
   -webkit-box-orient: vertical;
   overflow: hidden;
   min-height: 2.7em;
-  font-weight: 700;
+  font-weight: 650;
   font-size: 13.5px;
   line-height: 1.35;
+  overflow-wrap: anywhere;
 }
 .card-title:hover {
   color: var(--nar-deep);
@@ -1158,9 +1157,8 @@ button {
   padding-top: 6px;
 }
 .card-price strong {
-  font-size: 18px;
-  font-weight: 800;
-  letter-spacing: -0.02em;
+  font: 700 19px/1.1 var(--display);
+  letter-spacing: -0.03em;
 }
 .card-price s,
 .card-price small {
@@ -1191,14 +1189,13 @@ button {
   align-items: center;
   justify-content: space-between;
   gap: 4px;
-  min-height: 38px;
-  margin-top: 6px;
-  padding: 0 10px 0 12px;
-  border-radius: 10px;
-  background: var(--nar-tint);
+  min-height: 36px;
+  margin: 8px -12px -12px;
+  padding: 0 12px;
+  border-top: 1px solid var(--line);
   color: var(--nar-deep);
-  font-size: 12px;
-  font-weight: 800;
+  font-size: 12.5px;
+  font-weight: 750;
   transition:
     background 0.2s,
     color 0.2s;
@@ -1213,7 +1210,6 @@ button {
   transition: transform 0.25s var(--ease);
 }
 .card-off .card-cta {
-  background: var(--plate);
   color: var(--muted);
 }
 .skeleton {
@@ -1306,10 +1302,7 @@ button {
   padding: 24px 18px;
   border-radius: 24px;
   color: #fff;
-  background:
-    radial-gradient(60% 80% at 100% 0%, rgb(255 201 60 / 26%), transparent 60%),
-    radial-gradient(70% 90% at 0% 100%, rgb(240 37 103 / 55%), transparent 65%),
-    linear-gradient(135deg, var(--night), var(--night-2) 55%, #7a1148);
+  background: var(--night);
   overflow: hidden;
   isolation: isolate;
 }
@@ -1318,9 +1311,9 @@ button {
   position: absolute;
   inset: 0;
   z-index: -1;
-  background-image: radial-gradient(rgb(255 255 255 / 9%) 1px, transparent 1.5px);
-  background-size: 22px 22px;
-  mask-image: linear-gradient(120deg, transparent 20%, #000);
+  background-image: radial-gradient(rgb(255 255 255 / 7%) 1px, transparent 1.5px);
+  background-size: 18px 18px;
+  mask-image: linear-gradient(110deg, transparent 45%, #000);
 }
 .hero-copy {
   display: grid;
@@ -1347,15 +1340,13 @@ button {
   animation: blink 1.8s ease-in-out infinite;
 }
 .hero h1 {
-  font: 700 clamp(28px, 6.4vw, 56px) / 1.05 var(--display);
-  letter-spacing: -0.035em;
+  font: 700 clamp(30px, 8vw, 60px) / 1.02 var(--display);
+  letter-spacing: -0.04em;
+  text-wrap: balance;
 }
 .hero h1 span {
   display: block;
-  background: linear-gradient(90deg, var(--sun), #ff8fb1);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: var(--sun);
 }
 .hero p {
   color: #ecd6e4;
@@ -1367,10 +1358,19 @@ button {
 }
 .hero-popular {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
   gap: 8px;
   font-size: 13px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  margin-inline: -18px;
+  padding-inline: 18px;
+}
+.hero-popular::-webkit-scrollbar {
+  display: none;
+}
+.hero-popular > * {
+  flex: none;
 }
 .hero-popular span {
   color: #d7b9cb;
@@ -1496,7 +1496,7 @@ button {
   animation-delay: calc(var(--r) * 90ms + 150ms);
 }
 .is-low .stage-bar i {
-  background: linear-gradient(90deg, var(--mint), #34d399);
+  background: var(--mint);
 }
 .is-low .stage-price {
   color: var(--mint);
@@ -1600,14 +1600,8 @@ button {
 /* Category tiles */
 .cats {
   display: grid;
-  grid-auto-flow: column;
-  grid-template-rows: repeat(2, auto);
-  grid-auto-columns: 104px;
-  gap: 10px;
-  overflow-x: auto;
-  scrollbar-width: none;
-  margin-inline: -16px;
-  padding: 2px 16px 10px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px 6px;
 }
 .cats::-webkit-scrollbar {
   display: none;
@@ -1615,11 +1609,9 @@ button {
 .cats a {
   display: grid;
   justify-items: center;
+  align-content: start;
   gap: 6px;
-  padding: 12px 6px;
-  border-radius: var(--radius);
-  background: var(--surface);
-  box-shadow: var(--shadow-1);
+  min-width: 0;
   text-align: center;
   transition:
     transform 0.3s var(--ease),
@@ -1630,42 +1622,21 @@ button {
   height: 52px;
   display: grid;
   place-items: center;
-  border-radius: 16px;
-  background: var(--tone, var(--nar-soft));
-  color: var(--tone-ink, var(--nar-deep));
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 0 1px var(--line);
+  color: var(--ink);
   transition: transform 0.35s var(--ease);
 }
-.cats [data-tone="1"] {
-  --tone: #e6f0ff;
-  --tone-ink: #1d4ed8;
-}
-.cats [data-tone="2"] {
-  --tone: #fff1d6;
-  --tone-ink: #a45c00;
-}
-.cats [data-tone="3"] {
-  --tone: #e2f7ee;
-  --tone-ink: #0a8f5d;
-}
-.cats [data-tone="4"] {
-  --tone: #f1e8ff;
-  --tone-ink: #6d28d9;
-}
-.cats [data-tone="5"] {
-  --tone: #e0f5fa;
-  --tone-ink: #0e7490;
-}
 .cats b {
-  font-size: 12.5px;
-  font-weight: 800;
+  font-size: 12px;
+  font-weight: 700;
   line-height: 1.25;
-  min-height: 2.5em;
-  display: grid;
-  align-items: center;
+  overflow-wrap: anywhere;
+  hyphens: auto;
 }
 .cats small {
-  color: var(--muted);
-  font-size: 11px;
+  display: none;
 }
 
 /* Gap cards */
@@ -1732,17 +1703,18 @@ button {
   display: grid;
   justify-items: center;
   align-content: center;
-  min-width: 78px;
-  padding: 10px 8px;
-  border-radius: 14px;
-  background: var(--sun);
-  font-weight: 800;
-  font-size: 14px;
-  line-height: 1.2;
+  min-width: 64px;
+  padding-left: 12px;
+  border-left: 1px solid var(--line);
+  color: var(--mint);
+  font: 700 16px/1.15 var(--display);
+  letter-spacing: -0.02em;
+  white-space: nowrap;
 }
 .gap-save small {
-  font-size: 10.5px;
-  font-weight: 700;
+  color: var(--muted);
+  font: 600 10.5px var(--body);
+  letter-spacing: 0;
 }
 
 /* Chips */
@@ -1848,9 +1820,7 @@ button {
   padding: 22px 20px;
   border-radius: 22px;
   color: #fff;
-  background:
-    radial-gradient(60% 120% at 100% 0%, rgb(255 201 60 / 35%), transparent 60%),
-    linear-gradient(120deg, var(--nar-deep), var(--nar) 60%, #ff5c8a);
+  background: var(--nar);
 }
 .merchant-band h2 {
   font: 600 clamp(18px, 2.6vw, 26px) / 1.2 var(--display);
@@ -1942,6 +1912,13 @@ button {
 .crumbs svg {
   flex: none;
 }
+/* On a phone the page title repeats the product name right below; the trail stops at the category. */
+@media (max-width: 599px) {
+  .pd .crumbs span[aria-current],
+  .pd .crumbs svg:last-of-type {
+    display: none;
+  }
+}
 .listing-head {
   display: flex;
   align-items: center;
@@ -1970,6 +1947,24 @@ button {
   background: var(--surface);
   box-shadow: var(--shadow-1);
   flex: none;
+  overflow: hidden;
+}
+.listing-logo .merchant-logo {
+  max-width: 100%;
+  min-height: 0;
+  height: 100%;
+}
+.listing-logo .merchant-logo img {
+  max-width: 100%;
+  max-height: 100%;
+}
+/* The store name is the heading next to it; the box shows only the mark. */
+.listing-logo .symbol-logo:has(img) > span {
+  display: none;
+}
+.listing-logo .symbol-logo img {
+  width: 40px;
+  height: 40px;
 }
 .filters {
   position: fixed;
@@ -2344,9 +2339,8 @@ a.page-next:hover {
 }
 .pd-keyspecs b {
   font-size: 13.5px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
 }
 .buybox {
   display: grid;
@@ -2854,9 +2848,12 @@ a.page-next:hover {
   font-weight: 800;
 }
 .store small {
+  max-width: 100%;
   color: var(--muted);
   font-size: 12px;
   margin-bottom: 6px;
+  overflow-wrap: anywhere;
+  text-align: center;
 }
 .store-off .store-logo {
   filter: grayscale(1);
@@ -3017,7 +3014,7 @@ a.page-next:hover {
   display: grid;
   place-items: center;
   border-radius: 18px;
-  background: linear-gradient(135deg, #f02567, var(--nar-deep));
+  background: var(--nar);
   color: #fff;
   font: 600 22px var(--display);
 }
@@ -3077,9 +3074,7 @@ a.page-next:hover {
   padding: 22px 20px;
   border-radius: 22px;
   color: #fff;
-  background:
-    radial-gradient(70% 90% at 100% 0%, rgb(255 201 60 / 28%), transparent 60%),
-    linear-gradient(140deg, var(--night), var(--night-2) 60%, #7a1148);
+  background: var(--night);
 }
 .merchant-pitch h1 {
   font: 700 clamp(24px, 4vw, 38px) / 1.12 var(--display);
@@ -3125,7 +3120,7 @@ a.page-next:hover {
   padding: 28px 20px;
   border-radius: 22px;
   color: #fff;
-  background: linear-gradient(140deg, var(--night), var(--night-2) 60%, #7a1148);
+  background: var(--night);
 }
 .guide-hero h1 {
   font: 700 clamp(24px, 4.4vw, 42px) / 1.12 var(--display);
@@ -3235,7 +3230,8 @@ a.page-next:hover {
 }
 .nf-code {
   font: 700 72px/1 var(--display);
-  background: linear-gradient(120deg, var(--nar), var(--sun-deep));
+  background: none;
+  color: var(--nar);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -3356,21 +3352,23 @@ a.page-next:hover {
   .cats a:hover,
   .store:hover,
   .tiles a:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-2);
+    transform: translateY(-2px);
+    box-shadow:
+      0 0 0 1px var(--line-strong),
+      0 14px 30px -14px rgb(27 18 32 / 25%);
   }
   .card:hover .card-media img {
-    transform: scale(1.06);
+    transform: scale(1.04);
   }
   .card:hover .card-cta {
-    background: var(--nar);
-    color: #fff;
+    background: var(--nar-tint);
   }
   .card:hover .card-cta svg {
     transform: translateX(3px);
   }
   .cats a:hover .cats-icon {
-    transform: rotate(-6deg) scale(1.08);
+    background: var(--nar-soft);
+    color: var(--nar-deep);
   }
   .offer:hover {
     box-shadow: inset 0 0 0 1.5px var(--line-strong);
@@ -3607,7 +3605,7 @@ a.page-next:hover {
     height: 48px;
     padding: 0 28px;
     border-radius: 14px;
-    background: linear-gradient(135deg, #f02567, var(--nar-deep));
+    background: var(--nar);
     color: #fff;
     font-weight: 800;
     font-size: 15px;
@@ -3646,13 +3644,18 @@ a.page-next:hover {
     grid-auto-flow: row;
     grid-template-rows: none;
     grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
-    overflow: visible;
-    margin-inline: 0;
-    padding: 0;
     gap: 14px;
   }
   .cats a {
     padding: 18px 8px 14px;
+    border-radius: var(--radius);
+    background: var(--surface);
+    box-shadow: 0 0 0 1px var(--line);
+  }
+  .cats small {
+    display: block;
+    color: var(--muted);
+    font-size: 11px;
   }
   .cats-icon {
     width: 60px;
@@ -3893,9 +3896,7 @@ a.page-next:hover {
     gap: 22px;
     padding: 44px;
     color: #fff;
-    background:
-      radial-gradient(70% 90% at 100% 0%, rgb(255 201 60 / 28%), transparent 60%),
-      linear-gradient(150deg, var(--night), var(--night-2) 60%, #7a1148);
+    background: var(--night);
   }
   .auth-side h2 {
     font: 700 30px/1.15 var(--display);
@@ -4023,4 +4024,18 @@ a.page-next:hover {
   color: #6b4b00;
   font: 600 12.5px/1.3 var(--body);
   text-align: center;
+}
+
+/* Wide screens get back what the phone layout trims. */
+@media (min-width: 900px) {
+  .hero-popular {
+    flex-wrap: wrap;
+    overflow: visible;
+    margin-inline: 0;
+    padding-inline: 0;
+  }
+  .cats-icon {
+    background: var(--plate);
+    box-shadow: none;
+  }
 }
