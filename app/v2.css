@@ -1392,7 +1392,6 @@ button {
   background: #fff;
   color: var(--ink);
   box-shadow: 0 20px 50px rgb(0 0 0 / 30%);
-  animation: stage-in 0.5s var(--ease) both;
 }
 .stage-product {
   display: flex;
@@ -3628,11 +3627,6 @@ a.page-next:hover {
     padding: 20px;
     gap: 16px;
     border-radius: 24px;
-    transform: rotate(1.2deg);
-    transition: transform 0.5s var(--ease);
-  }
-  .stage:hover .stage-card {
-    transform: rotate(0) scale(1.01);
   }
   .stage-photo {
     width: 96px;
@@ -4129,31 +4123,9 @@ a.page-next:hover {
     font-size: 13px;
     font-weight: 800;
   }
+}
 
-  /* The buy box floats in slightly turned, like the home page price card, and settles on hover. */
-  .pd-top {
-    perspective: 1400px;
-  }
-  .buybox {
-    transform: rotateY(-7deg) rotateX(2deg);
-    transform-origin: right center;
-    animation: buybox-in 0.8s var(--ease) both;
-    transition:
-      transform 0.5s var(--ease),
-      box-shadow 0.5s var(--ease);
-  }
-  .buybox:hover {
-    transform: none;
-  }
-}
-@keyframes buybox-in {
-  from {
-    opacity: 0;
-    transform: rotateY(-22deg) rotateX(6deg) translateX(30px);
-  }
-}
 @media (prefers-reduced-motion: reduce) {
-  .buybox,
   .pd-glance li,
   .pd-glance em {
     animation: none;
@@ -4204,4 +4176,100 @@ a.page-next:hover {
 .buybox-store .merchant-logo .is-wordmark,
 .stage .merchant-logo .is-wordmark {
   display: inline;
+}
+
+/* 3D cards: the home price card is the top of a small deck that flips in and floats; the buy box
+   on product pages floats turned toward the shopper. Hover holds them still. */
+.stage {
+  position: relative;
+  perspective: 1100px;
+}
+.stage::before,
+.stage::after {
+  content: "";
+  position: absolute;
+  inset: 14px 10px auto;
+  height: calc(100% - 46px);
+  border-radius: 22px;
+  background: rgb(255 255 255 / 16%);
+  transform: translate3d(14px, -12px, -60px) rotate(4deg);
+  pointer-events: none;
+  animation: deck 7s ease-in-out infinite;
+}
+.stage::after {
+  background: rgb(255 255 255 / 9%);
+  transform: translate3d(26px, -22px, -120px) rotate(8deg);
+  animation-delay: -1.2s;
+}
+.stage-card {
+  position: relative;
+  z-index: 1;
+  transform-style: preserve-3d;
+  transform-origin: 50% 60%;
+  animation:
+    card-flip 0.9s var(--ease) both,
+    card-float 7s ease-in-out 0.9s infinite;
+}
+.stage:hover .stage-card,
+.stage:focus-within .stage-card {
+  animation-play-state: paused;
+}
+@keyframes card-flip {
+  from {
+    opacity: 0;
+    transform: rotateY(-75deg) rotateX(8deg) translateX(40px);
+  }
+  to {
+    transform: rotateY(-10deg) rotateX(5deg);
+  }
+}
+@keyframes card-float {
+  0%,
+  100% {
+    transform: rotateY(-10deg) rotateX(5deg) translateY(0);
+  }
+  50% {
+    transform: rotateY(-3deg) rotateX(1deg) translateY(-10px);
+  }
+}
+@keyframes deck {
+  50% {
+    translate: 0 -6px;
+  }
+}
+@media (min-width: 900px) {
+  .pd-top {
+    perspective: 1400px;
+  }
+  .buybox {
+    transform-style: preserve-3d;
+    transform-origin: right center;
+    animation:
+      buybox-in 0.9s var(--ease) both,
+      buybox-float 8s ease-in-out 0.9s infinite;
+    transition: transform 0.5s var(--ease);
+  }
+  .buybox:hover,
+  .buybox:focus-within {
+    animation: none;
+    transform: none;
+  }
+}
+@keyframes buybox-in {
+  from {
+    opacity: 0;
+    transform: rotateY(-35deg) rotateX(8deg) translateX(60px);
+  }
+  to {
+    transform: rotateY(-9deg) rotateX(3deg);
+  }
+}
+@keyframes buybox-float {
+  0%,
+  100% {
+    transform: rotateY(-9deg) rotateX(3deg) translateY(0);
+  }
+  50% {
+    transform: rotateY(-4deg) rotateX(1deg) translateY(-8px);
+  }
 }
