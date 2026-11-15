@@ -277,7 +277,7 @@ export default function Admin({
       <aside className="admin-sidebar">
         <span className="admin-label">İDARƏETMƏ MƏRKƏZİ</span>
         <div className="admin-person">
-          <img src="/favicon.svg?v=3" alt="" width={36} height={36} />
+          <img src="/favicon.svg?v=4" alt="" width={36} height={36} />
           <div>
             <b>Qəpik Admin</b>
             <small>Platforma sahibi</small>

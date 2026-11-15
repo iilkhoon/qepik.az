@@ -445,8 +445,8 @@ export default function ShopShell({
       <header className="header">
         <div className="wrap header-row">
           <a className="logo" aria-label="Qəpik ana səhifə" href="/">
-            <img src="/favicon.svg?v=3" alt="" width={38} height={38} />
-            <img className="logo-word" src="/logo-word.svg?v=3" alt="qəpik" width={110} height={52} />
+            <img src="/favicon.svg?v=4" alt="" width={38} height={38} />
+            <span className="logo-word">qəpik</span>
           </a>
           <button
             className="header-cats"
@@ -635,14 +635,8 @@ export default function ShopShell({
         <div className="wrap footer-main">
           <div className="footer-brand">
             <a className="logo" href="/">
-              <img src="/favicon.svg?v=3" alt="" width={36} height={36} />
-              <img
-                className="logo-word"
-                src="/logo-word-light.svg?v=3"
-                alt="qəpik"
-                width={110}
-                height={52}
-              />
+              <img src="/favicon.svg?v=4" alt="" width={36} height={36} />
+              <span className="logo-word">qəpik</span>
             </a>
             <p>{c.settings.headline} Azərbaycan mağazalarının qiymətləri bir yerdə.</p>
             <small>

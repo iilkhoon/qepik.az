@@ -1442,9 +1442,10 @@ input[type="checkbox"] {
   line-height: 1.8;
 }
 
-/* Wordmark shared with the storefront: drawn as an image next to the mascot. */
+/* Wordmark shared with the storefront: "qəpik" in Plus Jakarta Sans ExtraBold Italic. */
 .logo-word {
-  width: auto;
-  height: 38px;
-  margin-top: 6px;
+  font-family: var(--display, inherit);
+  font-style: italic;
+  font-weight: 800;
+  letter-spacing: -0.05em;
 }

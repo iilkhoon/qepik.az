@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   authors: [{ name: "Novo Media" }],
   creator: "Novo Media",
   publisher: "Novo Media",
-  icons: { icon: "/favicon.svg?v=3", shortcut: "/favicon.svg?v=3", apple: "/apple-touch-icon.png?v=3" },
+  icons: { icon: "/favicon.svg?v=4", shortcut: "/favicon.svg?v=4", apple: "/apple-touch-icon.png?v=4" },
 };
 
 export const viewport = { width: "device-width", initialScale: 1, themeColor: "#dc1658" };

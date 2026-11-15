@@ -337,9 +337,9 @@ button {
   flex: none;
 }
 .logo-word {
-  width: auto;
-  height: 40px;
-  margin-top: 6px;
+  font: italic 800 27px/1 var(--display);
+  letter-spacing: -0.05em;
+  padding: 0 3px 3px 0;
 }
 .header-cats {
   display: none;
@@ -3486,7 +3486,7 @@ a.page-next:hover {
     height: 42px;
   }
   .logo-word {
-    height: 44px;
+    font-size: 29px;
   }
   .header-cats {
     grid-area: cats;
