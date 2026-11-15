@@ -1,6 +1,8 @@
 {
   "name": "qepik",
   "version": "0.1.0",
+  "author": "Novo Media",
+  "description": "Qəpik — Azərbaycan mağazalarında qiymət müqayisəsi",
   "private": true,
   "engines": {
     "node": ">=22.13.0"

@@ -8,6 +8,9 @@ export const metadata: Metadata = {
   description:
     "Azərbaycan mağazalarının qiymətlərini, çatdırılma və ödəniş şərtlərini bir yerdə müqayisə edin.",
   manifest: "/manifest.webmanifest",
+  authors: [{ name: "Novo Media" }],
+  creator: "Novo Media",
+  publisher: "Novo Media",
   icons: { icon: "/favicon.svg", shortcut: "/favicon.svg", apple: "/apple-touch-icon.png" },
 };
 
