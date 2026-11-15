@@ -1442,14 +1442,23 @@ input[type="checkbox"] {
   line-height: 1.8;
 }
 
-/* Wordmark shared with the storefront: "qəpik" with the ə in brand colour. */
+/* Wordmark shared with the storefront: "qəpik" in Nunito Black next to the mascot. */
+@font-face {
+  font-family: "Qepik Logo";
+  font-weight: 900;
+  src: url(/fonts/Nunito-black-latin-ext.woff2) format("woff2");
+  unicode-range: U+0100-02FF;
+}
+@font-face {
+  font-family: "Qepik Logo";
+  font-weight: 900;
+  src: url(/fonts/Nunito-black-latin.woff2) format("woff2");
+}
 .logo-word {
-  font-family: var(--display, inherit);
-  font-style: italic;
-  font-weight: 800;
-  letter-spacing: -0.045em;
+  font-family: "Qepik Logo", var(--display, inherit);
+  font-weight: 900;
+  letter-spacing: -0.03em;
 }
 .logo-word b {
-  color: #dc1658;
   font-weight: inherit;
 }
