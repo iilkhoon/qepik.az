@@ -9,9 +9,11 @@ import {
   type Product,
 } from "./catalog";
 
-// Canonical origin for SEO tags, sitemaps and robots.txt. Local until the site moves to its own
-// domain; change it here when it does.
-export const SITE_URL = "http://localhost:5173";
+// Public address of the site; set SITE_URL on the server to override.
+export const SITE_URL = (
+  (typeof process !== "undefined" && process.env.SITE_URL) ||
+  "https://qepik.az"
+).replace(/\/$/, "");
 export const SITE_NAME = "Qəpik";
 const SOCIAL_CARD = SITE_URL + "/social-card.png";
 const DESCRIPTION_LIMIT = 160;
@@ -33,6 +35,7 @@ const ROUTES: Record<string, [number, number]> = {
   giris: [1, 1],
   qeydiyyat: [1, 1],
   hesab: [1, 1],
+  testmehsul: [1, 1],
 };
 // Account, tool and search pages: never in the index.
 const PRIVATE_PAGES = new Set([
@@ -45,6 +48,7 @@ const PRIVATE_PAGES = new Set([
   "giris",
   "qeydiyyat",
   "hesab",
+  "testmehsul",
 ]);
 // Personal pages whose links are not worth following either.
 const NOFOLLOW_PAGES = new Set(["admin", "bildirisler", "secilmisler", "hesab"]);
@@ -93,6 +97,10 @@ const STATIC_PAGES: Record<string, { title: string; description: string }> = {
   giris: { title: "Daxil ol", description: "Qəpik hesabına daxil ol." },
   qeydiyyat: { title: "Qeydiyyat", description: "Qəpik-də pulsuz hesab yarat." },
   hesab: { title: "Hesabım", description: "Qəpik hesabın." },
+  testmehsul: {
+    title: "iPhone Duo — nümunə səhifə",
+    description: "Qəpik məhsul səhifəsinin nümunəsi.",
+  },
   axtaris: {
     title: "Axtarış nəticələri",
     description: "Qəpik-də məhsul axtarışı.",

@@ -2,7 +2,17 @@
 
 Azərbaycan mağazalarının qiymətlərini bir yerdə göstərən sayt. React 19 + Vinext (Vite), Node serveri və bir SQLite faylı. Xarici xidmət, Cloudflare və ya ayrıca baza serveri tələb olunmur.
 
-## Serverdə işə salmaq
+## Tək əmrlə serverə quraşdırmaq (Ubuntu/Debian)
+
+Serverdə root kimi:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/iilkhoon/serfeli/claude/dreamy-bell-2exiww/deploy/install.sh | OWNER_EMAIL=sen@example.com bash
+```
+
+Skript köhnə quraşdırmanı və 80/443 portunu tutan xidmətləri (nginx, apache, pm2) dayandırır, Node 22 və Caddy qurur, saytı `/opt/qepik`-də build edir, bazanı `/var/lib/qepik`-də saxlayır və `https://qepik.az`-ı avtomatik sertifikatla açır. Yeniləmək üçün eyni əmri təkrar işlədin. Ətraflı: `docs/HANDOFF.md`.
+
+## Serverdə əl ilə işə salmaq
 
 Node 22.13 və ya daha yeni versiya lazımdır.
 

@@ -424,7 +424,7 @@ export function catalogSlice(c: Catalog, q: CatalogQuery): CatalogSlice {
     for (const p of x.homeByCity.get(cityKey)!) chosen.set(p.id, p);
     for (const id of HOME_HERO_IDS) add(id);
   }
-  const drops = page === "home" ? priceDrops(c, x) : undefined;
+  const drops = page === "home" || page === "testmehsul" ? priceDrops(c, x) : undefined;
   for (const id of drops || []) add(id);
   let similar: string[] | undefined;
   add(HERO_PRODUCT);

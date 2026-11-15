@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Unbounded:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Geologica:wght@500..800&family=Onest:wght@400..800&display=swap");
 :root {
   --paper: #f7f8f9;
   --ink: #233a32;
@@ -1440,4 +1440,15 @@ input[type="checkbox"] {
   color: var(--muted);
   max-width: 420px;
   line-height: 1.8;
+}
+
+/* Wordmark shared with the storefront: "qəpik" with the ə in brand colour. */
+.logo-word {
+  font-family: var(--display, inherit);
+  font-weight: 800;
+  letter-spacing: -0.045em;
+}
+.logo-word b {
+  color: #dc1658;
+  font-weight: inherit;
 }

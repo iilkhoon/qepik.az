@@ -8,10 +8,10 @@ export const metadata: Metadata = {
   description:
     "Azərbaycan mağazalarının qiymətlərini, çatdırılma və ödəniş şərtlərini bir yerdə müqayisə edin.",
   manifest: "/manifest.webmanifest",
-  icons: { icon: "/favicon.svg", shortcut: "/favicon.svg" },
+  icons: { icon: "/favicon.svg", shortcut: "/favicon.svg", apple: "/apple-touch-icon.png" },
 };
 
-export const viewport = { width: "device-width", initialScale: 1, themeColor: "#d81b54" };
+export const viewport = { width: "device-width", initialScale: 1, themeColor: "#dc1658" };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (

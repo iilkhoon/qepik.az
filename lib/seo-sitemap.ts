@@ -137,6 +137,7 @@ export function robotsTxt() {
     "Disallow: /giris",
     "Disallow: /qeydiyyat",
     "Disallow: /hesab",
+    "Disallow: /testmehsul",
     "",
     "Sitemap: " + SITE_URL + "/sitemap.xml",
     "",

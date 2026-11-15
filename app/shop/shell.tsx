@@ -33,6 +33,7 @@ import { emptyFilters, ShopContext, type Filters, type ModalState, type Shop } f
 import Home from "./home";
 import Listing from "./listing";
 import ProductDetail from "./product";
+import SamplePage from "./sample";
 import {
   Account,
   Alerts,
@@ -417,6 +418,7 @@ export default function ShopShell({
     "bildirisler",
     "magaza-qeydiyyat",
     "rehber",
+    "testmehsul",
     "giris",
     "qeydiyyat",
     "hesab",
@@ -444,7 +446,9 @@ export default function ShopShell({
         <div className="wrap header-row">
           <a className="logo" aria-label="Qəpik ana səhifə" href="/">
             <img src="/favicon.svg" alt="" width={38} height={38} />
-            qəpik<span>.</span>
+            <span className="logo-word">
+              q<b>ə</b>pik
+            </span>
           </a>
           <button
             className="header-cats"
@@ -616,6 +620,7 @@ export default function ShopShell({
         {page === "giris" && <AuthPage mode="login" />}
         {page === "qeydiyyat" && <AuthPage mode="register" />}
         {page === "hesab" && <Account />}
+        {page === "testmehsul" && <SamplePage />}
         {!known.includes(page) && (
           <Empty
             title="Səhifə tapılmadı"
@@ -633,7 +638,9 @@ export default function ShopShell({
           <div className="footer-brand">
             <a className="logo" href="/">
               <img src="/favicon.svg" alt="" width={36} height={36} />
-              qəpik<span>.</span>
+              <span className="logo-word">
+                q<b>ə</b>pik
+              </span>
             </a>
             <p>{c.settings.headline} Azərbaycan mağazalarının qiymətləri bir yerdə.</p>
             <small>
@@ -698,7 +705,7 @@ export default function ShopShell({
         </div>
       )}
       <nav
-        className={"tabbar" + (page === "mehsul" ? " tabbar-hidden" : "")}
+        className={"tabbar" + (page === "mehsul" || page === "testmehsul" ? " tabbar-hidden" : "")}
         aria-label="Əsas bölmələr"
       >
         <a href="/" aria-current={current("home")}>

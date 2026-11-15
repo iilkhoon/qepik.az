@@ -56,9 +56,7 @@ function PriceChart({ points }: { points: { id: string; price: number; date: str
       <polyline points={line} fill="none" className="chart-line" />
       {points.map((h, i) => (
         <circle key={h.id} cx={x(i)} cy={y(h.price)} r="4.5" className="chart-dot">
-          <title>
-            {azDate(h.date)}: {money(h.price)}
-          </title>
+          <title>{`${azDate(h.date)}: ${money(h.price)}`}</title>
         </circle>
       ))}
       <text x="40" y="30" className="chart-label">
@@ -79,7 +77,7 @@ function PriceChart({ points }: { points: { id: string; price: number; date: str
   );
 }
 
-export default function ProductDetail({ p }: { p: Product }) {
+export default function ProductDetail({ p, sample = false }: { p: Product; sample?: boolean }) {
   const {
     c,
     city,
@@ -146,6 +144,15 @@ export default function ProductDetail({ p }: { p: Product }) {
   const fav = isFavorite(p.id);
   const watching = personal.alerts.find((a) => a.productId === p.id);
   const go = (e: MouseEvent, o: Offer) => {
+    if (sample) {
+      e.preventDefault();
+      setToast(
+        "Bu nümunə səhifədir: " +
+          (c.stores.find((s) => s.id === o.storeId)?.name || "mağaza") +
+          " saytı açılmır.",
+      );
+      return;
+    }
     if (o.demo) {
       e.preventDefault();
       openModal({ type: "info", topic: "Nümunə təklif" });
@@ -223,7 +230,8 @@ export default function ProductDetail({ p }: { p: Product }) {
               {available.length} mağazada stokda
             </span>
             {shown && agoText(shown.checkedAt, now) && (
-              <span>
+              // Server and browser clocks can sit either side of a minute boundary.
+              <span suppressHydrationWarning>
                 <Clock size={15} aria-hidden="true" />
                 {agoText(shown.checkedAt, now)} yoxlanıb
               </span>
@@ -625,6 +633,7 @@ export default function ProductDetail({ p }: { p: Product }) {
             className="form review-form"
             onSubmit={async (e) => {
               e.preventDefault();
+              if (sample) return setToast("Nümunə səhifədə rəy göndərilmir.");
               if (!needUser()) return;
               const form = e.currentTarget;
               setSending(true);
