@@ -42,7 +42,9 @@ function PriceChart({ points }: { points: { id: string; price: number; date: str
   const min = Math.min(...points.map((h) => h.price)),
     max = Math.max(...points.map((h) => h.price));
   const x = (i: number) => 40 + (i / Math.max(points.length - 1, 1)) * 740;
-  const y = (price: number) => 150 - ((price - min) / Math.max(max - min, 1)) * 110;
+  // A price that never moved sits mid-chart.
+  const y = (price: number) =>
+    max === min ? 95 : 150 - ((price - min) / Math.max(max - min, 1)) * 110;
   const line = points.map((h, i) => `${x(i)},${y(h.price)}`).join(" ");
   return (
     <svg viewBox="0 0 800 200" className="chart" role="img" aria-label="Qiymət tarixçəsi qrafiki">
@@ -128,6 +130,23 @@ export default function ProductDetail({ p, sample = false }: { p: Product; sampl
     .sort((a, b) => a.date.localeCompare(b.date));
   const last = allHistory.length ? Date.parse(allHistory[allHistory.length - 1].date) : 0;
   const history = allHistory.filter((h) => Date.parse(h.date) >= last - period * 86400000);
+  // One point per day (the lowest store price that day). A single day still draws a line up to the
+  // latest check, so a price that has not moved shows as a flat line instead of nothing.
+  const daily = [
+    ...history
+      .reduce((m, h) => {
+        const day = h.date.slice(0, 10);
+        const prev = m.get(day);
+        if (!prev || h.price < prev.price) m.set(day, { ...h, date: day });
+        return m;
+      }, new Map<string, (typeof history)[number]>())
+      .values(),
+  ];
+  const latestCheck = recorded.reduce((m, o) => (o.checkedAt > m ? o.checkedAt : m), "");
+  const chartPoints =
+    daily.length === 1
+      ? [daily[0], { ...daily[0], id: "latest", date: latestCheck || daily[0].date }]
+      : daily;
   const hMin = history.length ? Math.min(...history.map((h) => h.price)) : 0,
     hMax = history.length ? Math.max(...history.map((h) => h.price)) : 0;
   // Compared with the previous different recorded price.
@@ -598,13 +617,12 @@ export default function ProductDetail({ p, sample = false }: { p: Product; sampl
                   <b>{money(history.reduce((s, h) => s + h.price, 0) / history.length)}</b>
                 </div>
               </div>
-              {history.length < 2 ? (
+              <PriceChart points={chartPoints} />
+              {daily.length === 1 && (
                 <p className="panel-note">
-                  Bu dövr üçün hələlik bir qiymət qeydi var ({azDate(history[0].date)}). Qrafik
-                  ikinci qeyddən sonra görünəcək.
+                  Qiymət {azDate(daily[0].date)} tarixindən bəri izlənir; hər gün yeni nöqtə əlavə
+                  olunur.
                 </p>
-              ) : (
-                <PriceChart points={history} />
               )}
             </>
           ) : (
