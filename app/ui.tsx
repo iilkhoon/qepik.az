@@ -50,7 +50,9 @@ export function StoreLogo({ store }: { store: Store }) {
       {showImage && (
         <img ref={ref} src={src} alt={store.name + " loqosu"} onError={() => setFailed(true)} />
       )}
-      <span hidden={wordmark && showImage}>{store.name}</span>
+      <span className={wordmark && showImage ? "merchant-name is-wordmark" : "merchant-name"}>
+        {store.name}
+      </span>
     </span>
   );
 }

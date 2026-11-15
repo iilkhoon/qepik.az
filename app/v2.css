@@ -4159,3 +4159,49 @@ a.page-next:hover {
     animation: none;
   }
 }
+
+/* Store logos in price lists: one square tile for every store, with its name beside it, so wide
+   wordmarks and square icons look the same size. */
+.offer-store .merchant-logo,
+.pd-glance .merchant-logo,
+.buybox-store .merchant-logo,
+.stage .merchant-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 9px;
+  height: auto;
+  min-height: 0;
+  max-width: 100%;
+  padding: 0 !important;
+  background: none !important;
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.2;
+  text-align: left;
+}
+.offer-store .merchant-logo img,
+.pd-glance .merchant-logo img,
+.buybox-store .merchant-logo img,
+.stage .merchant-logo img {
+  width: 32px;
+  height: 32px;
+  max-width: none;
+  max-height: none;
+  flex: none;
+  padding: 3px;
+  border-radius: 9px;
+  background: #fff;
+  box-shadow: 0 0 0 1px var(--line);
+  object-fit: contain;
+}
+/* Elsewhere a wordmark logo already shows the name; in price lists the name is always written. */
+.merchant-logo .is-wordmark {
+  display: none;
+}
+.offer-store .merchant-logo .is-wordmark,
+.pd-glance .merchant-logo .is-wordmark,
+.buybox-store .merchant-logo .is-wordmark,
+.stage .merchant-logo .is-wordmark {
+  display: inline;
+}
