@@ -186,8 +186,8 @@ export default function Home() {
             Eyni məhsul, <span>ən ucuz qiymət.</span>
           </h1>
           <p>
-            Azərbaycan mağazalarının qiymətini, çatdırılmasını və taksitini yan-yana gör. Ən sərfəli
-            mağazaya bir kliklə keç.
+            Mağazaların qiymətini, çatdırılmasını və taksitini yan-yana gör, ən sərfəlisinə bir
+            kliklə keç.
           </p>
           <form
             action="/axtaris"
