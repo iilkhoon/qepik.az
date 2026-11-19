@@ -60,7 +60,9 @@ export async function recordsForRow(row, source) {
           };
     return { product, offer };
   }
-  const known = knownSourceProduct(source.id, row.url);
+  // Rows from a store's file without a product link carry "#qepik-<code>" on the store's address;
+  // the snapshot lookup ignores fragments, so they must not match the store's home page.
+  const known = row.url.includes("#qepik-") ? undefined : knownSourceProduct(source.id, row.url);
   const pid =
     known?.product?.id ||
     (await identity(source.id, row.url + (row.variantId ? "#variant-" + row.variantId : "")));

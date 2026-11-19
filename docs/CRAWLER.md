@@ -29,6 +29,23 @@ Serverdə gecəlik tam yeniləmə üçün (məsələn, `crontab -u qepik -e`):
 
 `deploy/install.sh` yeniləmədə `/opt/qepik` qovluğunu təmizlədiyi üçün serverdə nəticələri `--out /var/lib/qepik/crawl` ilə verilənlər qovluğunda saxlayın.
 
+## Mağazanın göndərdiyi fayl (`npm run crawl:file`)
+
+Saytı bot yoxlaması ilə qorunan və ya robots.txt-də uzun `Crawl-delay` olan mağaza öz məhsul siyahısını fayl kimi verə bilər. Onların heç bir qaydası dəyişmir.
+
+```bash
+npm run crawl:file -- --store kontakt --file kontakt.csv            # fayl
+npm run crawl:file -- --store okim --file https://okim.az/feed.xml  # mağazanın verdiyi link
+npm run crawl:file -- --store kontakt --file kontakt.csv --dry-run  # yalnız yoxla
+npm run crawl:import -- --only kontakt                              # sayta yaz
+```
+
+- Formatlar: CSV (Excel-də "CSV UTF-8" kimi saxla; `,` `;` və ya tab), JSON, Google Merchant / Facebook kataloq XML-i, YML (1C/Bitrix). WooCommerce və OpenCart-ın standart məhsul ixracı olduğu kimi oxunur.
+- Lazım olan sütunlar: **ad**, **qiymət** (AZN). Tövsiyə olunan: endirimli qiymət, stok (say və ya var/yoxdur), məhsul linki, şəkil linki, kod/SKU, marka, kateqoriya. Sütun adları azərbaycan, ingilis və rus dilində tanınır.
+- Endirimli qiymət varsa təklif qiyməti odur. Qiyməti olmayan, AZN olmayan sətir buraxılır. Mağaza domenində olmayan linklər qəbul edilmir.
+- Nəticə `data/crawl/files/<mağaza>/`-ya yazılır. Bu qovluq olduqca `crawl:import` həmin mağaza üçün oxunmuş səhifələri yox, faylı işlədir. Fayl tam kataloq sayılır: fayldan çıxmış məhsullar "naməlum stok" olur.
+- Fayl yeniləndikcə (gündəlik link olsa cron ilə) əmri təkrarlayın.
+
 ## Nəticə faylları (`data/crawl/`, git-ə daxil deyil)
 
 | Fayl | Məzmun |

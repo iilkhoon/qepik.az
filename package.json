@@ -16,7 +16,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "crawl": "node --no-warnings --import ./scripts/crawler/register.mjs scripts/crawler/crawl-all.mjs",
-    "crawl:import": "node --no-warnings --import ./scripts/crawler/register.mjs scripts/crawler/import-db.mjs"
+    "crawl:import": "node --no-warnings --import ./scripts/crawler/register.mjs scripts/crawler/import-db.mjs",
+    "crawl:file": "node --no-warnings --import ./scripts/crawler/register.mjs scripts/crawler/import-file.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",

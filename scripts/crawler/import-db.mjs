@@ -23,12 +23,29 @@ const { values: args } = parseArgs({
 const OUT = path.resolve(args.out);
 const dbFile = process.env.DATABASE_PATH || path.join("data", "qepik.sqlite");
 const only = args.only ? new Set(args.only.split(",")) : null;
+// Catalogs a store sent as a file (npm run crawl:file, <out>/files/<store>/) replace the crawled
+// pages of that store.
+const fileStores = fs.existsSync(path.join(OUT, "files"))
+  ? fs
+      .readdirSync(path.join(OUT, "files"))
+      .filter((id) => fs.existsSync(path.join(OUT, "files", id, "items.jsonl")))
+  : [];
 const sources = [
   ...crawlSources,
   ...(crawlSources.some((s) => s.id === "technomania")
     ? []
     : [{ id: "technomania", name: "Technomania", listing: true }]),
-].filter((s) => (!only || only.has(s.id)) && fs.existsSync(path.join(OUT, s.id, "items.jsonl")));
+]
+  .filter((s) => !fileStores.includes(s.id))
+  .map((s) => ({ ...s, dir: path.join(OUT, s.id) }))
+  .concat(
+    fileStores.map((id) => {
+      const dir = path.join(OUT, "files", id);
+      const st = JSON.parse(fs.readFileSync(path.join(dir, "state.json"), "utf8"));
+      return { id, name: st.storeName || id, dir };
+    }),
+  )
+  .filter((s) => (!only || only.has(s.id)) && fs.existsSync(path.join(s.dir, "items.jsonl")));
 if (!sources.length) {
   console.log("İdxal ediləcək nəticə yoxdur. Əvvəlcə `npm run crawl` işlədin.");
   process.exit(0);
@@ -50,9 +67,9 @@ const put = (kind, value) =>
 let grandProducts = 0,
   grandOffers = 0;
 for (const source of sources) {
-  const state = JSON.parse(fs.readFileSync(path.join(OUT, source.id, "state.json"), "utf8"));
+  const state = JSON.parse(fs.readFileSync(path.join(source.dir, "state.json"), "utf8"));
   const rows = new Map();
-  for (const line of fs.readFileSync(path.join(OUT, source.id, "items.jsonl"), "utf8").split("\n"))
+  for (const line of fs.readFileSync(path.join(source.dir, "items.jsonl"), "utf8").split("\n"))
     if (line)
       try {
         const r = JSON.parse(line);
