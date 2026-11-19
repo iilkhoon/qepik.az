@@ -24,7 +24,7 @@ const OUT = path.resolve(args.out);
 const dbFile = process.env.DATABASE_PATH || path.join("data", "qepik.sqlite");
 const only = args.only ? new Set(args.only.split(",")) : null;
 // One reading per store, in this order: the store's own file (npm run crawl:file, <out>/files/),
-// a complete crawl of its site (<out>/<store>/), did.az offers (npm run crawl:did, <out>/did/),
+// a complete crawl of its site (<out>/<store>/), partner API offers (npm run crawl:api, <out>/api/),
 // and last a crawl still in progress.
 const readState = (dir) => {
   try {
@@ -50,14 +50,14 @@ for (const s of [
 }
 for (const [sub, rank] of [
   ["files", 0],
-  ["did", 2],
+  ["api", 2],
 ])
   if (fs.existsSync(path.join(OUT, sub)))
     for (const id of fs.readdirSync(path.join(OUT, sub))) {
       const dir = path.join(OUT, sub, id);
       if (fs.statSync(dir).isDirectory()) offer(id, readState(dir)?.storeName || id, dir, rank);
     }
-const origin = ["fayl", "sayt", "did.az", "sayt (yarımçıq)"];
+const origin = ["fayl", "sayt", "API", "sayt (yarımçıq)"];
 const sources = [...candidates.values()].filter((s) => !only || only.has(s.id));
 if (!sources.length) {
   console.log("İdxal ediləcək nəticə yoxdur. Əvvəlcə `npm run crawl` işlədin.");

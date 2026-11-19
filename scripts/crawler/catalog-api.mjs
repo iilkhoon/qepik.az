@@ -1,12 +1,10 @@
-// Store offers published by did.az (Azerbaijani price comparison) for stores whose own sites cannot
-// be read here: bot protection (Kontakt, Birmarket, Music Gallery, Smart Electronics, Elit Optimal)
-// or a long robots.txt Crawl-delay (İrşad, Smarton).
-//   npm run crawl:did                          # default stores (see pick())
-//   npm run crawl:did -- --stores kontakt,irshad
-//   npm run crawl:did -- --list                # did.az stores and what we have for them
-// did.az robots.txt allows /api; its llms.txt / ai-catalog.json describe the public catalogue for
-// agents. Requests go one at a time with a pause (--delay-ms). Each offer keeps the merchant's own
-// product link; did.az images are not copied. Results go to <out>/did/<store>/ and are used by
+// Store offers from the partner catalogue API (PARTNER_API_URL in /etc/qepik.env) for stores whose
+// own sites cannot be read here (bot protection) or only very slowly (robots.txt Crawl-delay).
+//   npm run crawl:api                          # default stores (DEFAULT below)
+//   npm run crawl:api -- --stores kontakt,irshad
+//   npm run crawl:api -- --list                # the API's stores and what we have for them
+// Requests go one at a time with a pause (--delay-ms). Each offer keeps the merchant's own product
+// link and is shown as that store's offer. Results go to <out>/api/<store>/ and are used by
 // crawl:import when the store has no file and no complete crawl of its own.
 import fs from "node:fs";
 import path from "node:path";
@@ -28,7 +26,11 @@ const OUT = path.resolve(args.out);
 const DELAY = Math.max(1000, Number(args["delay-ms"]) || 1500);
 const PAGE = 500;
 const MAX_OFFERS = 60000;
-const API = "https://did.az/api/";
+const API = (process.env.PARTNER_API_URL || "").replace(/\/?$/, "/");
+if (!/^https:\/\/[^\s/]+\//.test(API)) {
+  console.log("PARTNER_API_URL təyin edilməyib (/etc/qepik.env); API mərhələsi buraxıldı.");
+  process.exit(0);
+}
 const UA = "QepikBot/1.0 (+https://qepik.az)";
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -57,7 +59,7 @@ async function api(pathAndQuery) {
       await sleep(Math.max(retry || 0, 30000 * 2 ** attempt));
       continue;
     }
-    throw new Error(`did.az HTTP ${r.status} (${pathAndQuery})`);
+    throw new Error(`API HTTP ${r.status} (${pathAndQuery})`);
   }
 }
 
@@ -112,9 +114,9 @@ const wanted = args.stores ? new Set(args.stores.split(",")) : DEFAULT;
 const picked = ours.filter((d) => wanted.has(d.store.id));
 for (const id of wanted)
   if (!picked.some((d) => d.store.id === id))
-    console.log(`${id}: did.az-da bu mağaza yoxdur, buraxıldı.`);
+    console.log(`${id}: API-də bu mağaza yoxdur, buraxıldı.`);
 
-// did.az product types → Qəpik categories (lib/catalog.ts). Unknown types fall back to the name
+// The API's product types → Qəpik categories (lib/catalog.ts). Unknown types fall back to the name
 // rules of the crawl jobs (records.mjs → categoryOf).
 function categoryOf(parent = "", sub = "") {
   const s = (sub || "").toLocaleLowerCase("az");
@@ -156,7 +158,7 @@ for (const d of picked) {
       const page = await api(
         `products?domain=${encodeURIComponent(d.domain)}&limit=${PAGE}&offset=${offset}`,
       );
-      if (!Array.isArray(page)) throw new Error("did.az cavabı siyahı deyil");
+      if (!Array.isArray(page)) throw new Error("API cavabı siyahı deyil");
       for (const r of page) {
         const price = Number(r.price);
         if (
@@ -193,9 +195,8 @@ for (const d of picked) {
             ...(r.ram ? { RAM: String(r.ram) } : {}),
             ...(r.processor ? { Prosessor: String(r.processor) } : {}),
             ...(r.screen_size ? { Ekran: String(r.screen_size) } : {}),
-            "Qiymət mənbəyi": "did.az",
           },
-          description: "",
+          description: `${store.name} mağazasının qiyməti; ətraflı məlumat mağazanın səhifəsindədir.`,
           checkedAt: new Date().toISOString(),
         });
       }
@@ -209,7 +210,7 @@ for (const d of picked) {
     error = e.message;
   }
   process.stdout.write("\n");
-  const dir = path.join(OUT, "did", store.id);
+  const dir = path.join(OUT, "api", store.id);
   fs.mkdirSync(dir, { recursive: true });
   const list = [...rows.values()];
   fs.writeFileSync(
@@ -220,7 +221,7 @@ for (const d of picked) {
     version: 1,
     sourceId: store.id,
     storeName: store.name,
-    origin: "did.az",
+    origin: "api",
     startedAt,
     finishedAt: new Date().toISOString(),
     // Only a run that reached the end of the store's list may mark missing offers as unknown stock.
@@ -236,5 +237,5 @@ for (const d of picked) {
       (error ? ` — ${error}` : ""),
   );
 }
-fs.writeFileSync(path.join(OUT, "did", "summary.json"), JSON.stringify(summary, null, 2));
+fs.writeFileSync(path.join(OUT, "api", "summary.json"), JSON.stringify(summary, null, 2));
 console.log("\nSayta yazmaq üçün: npm run crawl:import");
