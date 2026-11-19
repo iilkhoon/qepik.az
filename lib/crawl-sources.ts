@@ -207,8 +207,9 @@ export function isProductCandidate(sourceId: string, raw: string) {
   if (sourceId === "alinino") return path.startsWith("/product/");
   if (sourceId === "soliton")
     return path.startsWith("/az/") && path.endsWith(".html") && !path.includes("/pages/");
-  // bytelecom.az product pages are /az/products/<slug> (checked 2026-10-31).
-  if (sourceId === "bytelecom") return /^\/az\/products\/[^/]+\/?$/.test(path);
+  // bytelecom.az product pages were /az/products/<slug> (2026-10-31); the 2026-11 redesign lists
+  // them in sitemap.xml as /az/product/<slug>.
+  if (sourceId === "bytelecom") return /^\/az\/products?\/[^/]+\/?$/.test(path);
   // mgstore.az (Magento): products sit at /<url-key>; deeper paths are the category tree
   // (sitemap_az-2-*.xml, checked 2026-10-31). Single-segment landing pages fail the Product check.
   if (sourceId === "mgstore")

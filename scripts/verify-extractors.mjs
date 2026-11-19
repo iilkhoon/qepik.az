@@ -396,6 +396,16 @@ const pages = [
     stock: true,
     sku: "3568",
   },
+  // bytelecom.az after the 2026-11 redesign: the product is only in the Next.js flight payload.
+  {
+    id: "bytelecom-next",
+    url: "https://bytelecom.az/az/product/apple-iphone-13-pro-leather-case-with-magsafe-golden-brown-2819",
+    name: "Apple iPhone 13 Pro Leather Case with MagSafe Golden Brown",
+    price: 49,
+    old: 139,
+    stock: true,
+    sku: "6049",
+  },
 ];
 for (const t of pages) {
   const html = fs.readFileSync(`scripts/fixtures/${t.id}-product.html`, "utf8");
@@ -425,6 +435,12 @@ assert.equal(extractMicrodataProduct(micro(offer(10))).price, 10);
 assert.throws(() => extractMicrodataProduct(micro(offer(10) + offer(20))));
 assert.throws(() => extractMicrodataProduct(micro(offer(10).replace("AZN", "USD"))));
 // A page with no price (out of stock, "0.00 AZN", "Tezliklə") yields no offer.
+assert.throws(() =>
+  parseProductPage(
+    fs.readFileSync("scripts/fixtures/bytelecom-next-noprice.html", "utf8"),
+    "https://bytelecom.az/az/product/adapter-35w-dual-usb-c-port-power-2812",
+  ),
+);
 assert.throws(() =>
   parseProductPage(
     fs

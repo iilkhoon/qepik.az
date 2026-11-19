@@ -531,7 +531,7 @@ export function parseProductPage(html: string, raw: string): ScannedProduct {
   const host = url.hostname.replace(/^www\./, "");
   const reader = htmlProductReaders[host];
   const fixup = productFixups[host] || ((p: ScannedProduct) => p);
-  const p = fixup(reader ? reader(html, url.href) : extractProduct(html));
+  const p = fixup(reader?.(html, url.href) || extractProduct(html));
   // Some stores write their own image URLs as http://; the same host serves them over HTTPS.
   let image = p.image;
   try {

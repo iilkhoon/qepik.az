@@ -9,6 +9,8 @@ import {
   crossSite,
   errorResponse,
   bareHost,
+  clientIp,
+  rateLimitedPeek,
 } from "../lib/api/http.ts";
 
 const post = (body, headers = {}) =>
@@ -72,6 +74,19 @@ assert.deepEqual(errorResponse(new Error("İdxal mənbəyi düzgün deyil."), tr
 assert.equal(errorResponse(new TypeError("x is undefined"), true).status, 500);
 const access = Object.assign(new Error("HTTP 403"), { name: "SourceAccessError" });
 assert.equal(errorResponse(access, true).status, 502);
+// Only the proxy-appended (last) X-Forwarded-For entry identifies the client; forged leading
+// entries and X-Real-IP cannot give one client a fresh rate-limit key.
+const ipOf = (headers) => clientIp(new Request("https://qepik.test/", { headers }));
+assert.equal(ipOf({ "x-forwarded-for": "1.1.1.1, 203.0.113.9" }), "203.0.113.9");
+assert.equal(ipOf({ "x-forwarded-for": "203.0.113.9", "x-real-ip": "9.9.9.9" }), "203.0.113.9");
+assert.equal(ipOf({ "x-real-ip": "9.9.9.9" }), "anonymous");
+// Peek reports an exhausted window without counting a request.
+for (let i = 0; i < 3; i++) rateLimited("peek-test", 3, 900000);
+assert.equal(rateLimitedPeek("peek-test", 3), true);
+assert.equal(rateLimitedPeek("peek-other", 3), false);
+console.log(
+  "PASS: client address from the proxy-appended X-Forwarded-For entry, per-account login limit,",
+);
 console.log(
   "PASS: API body size limit (chunked too), JSON errors, per-key rate limit windows, cross-site write rejection, www-insensitive store domains, error status mapping without leaking internals. No server.",
 );

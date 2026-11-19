@@ -253,7 +253,7 @@ async function releaseHost(db: D1Database, host: string, delay: number, token: s
     )
     .run();
 }
-function categoryOf(name: string) {
+export function categoryOf(name: string) {
   const n = name.toLocaleLowerCase("az");
   if (/qulaql|airpods|dinamik|audio|headphone/.test(n)) return "audio";
   if (/iphone|smartfon|galaxy|redmi|poco|honor/.test(n)) return "telefon";
@@ -269,7 +269,7 @@ function categoryOf(name: string) {
     return "ev";
   return "aksesuar";
 }
-async function identity(sourceId: string, url: string) {
+export async function identity(sourceId: string, url: string) {
   const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(url));
   return (
     "crawl-" +

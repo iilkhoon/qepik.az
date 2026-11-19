@@ -649,6 +649,23 @@
 .admin-setup .eyebrow {
   margin-bottom: 0;
 }
+.admin-setup .setup-token {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: min(100%, 360px);
+  font-size: 12px;
+  color: var(--muted);
+}
+.admin-setup .setup-token input {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font: inherit;
+  font-size: 14px;
+  background: var(--surface);
+  color: inherit;
+}
 .admin-layout {
   display: grid;
   grid-template-columns: 225px 1fr;

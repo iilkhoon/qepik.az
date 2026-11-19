@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Qəpik: one-command install on a fresh Ubuntu/Debian server (run as root).
 #
-#   curl -fsSL https://raw.githubusercontent.com/iilkhoon/serfeli/claude/dreamy-bell-2exiww/deploy/install.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/iilkhoon/qepik.az/<budaq>/deploy/install.sh | bash
 #
 # Optional settings, put before `bash`:  DOMAIN=qepik.az OWNER_EMAIL=you@example.com
 # What it does: removes an old Qəpik install and anything holding ports 80/443 (nginx, apache,
@@ -12,7 +12,7 @@ set -euo pipefail
 
 DOMAIN="${DOMAIN:-qepik.az}"
 OWNER_EMAIL="${OWNER_EMAIL:-}"
-REPO="${REPO:-https://github.com/iilkhoon/serfeli.git}"
+REPO="${REPO:-https://github.com/iilkhoon/qepik.az.git}"
 BRANCH="${BRANCH:-claude/dreamy-bell-2exiww}"
 APP=/opt/qepik
 DATA=/var/lib/qepik
@@ -87,13 +87,20 @@ PORT=$PORT
 HOST=127.0.0.1
 DATABASE_PATH=$DATA/qepik.sqlite
 SITE_URL=https://$DOMAIN
-# İlk qeydiyyatdan keçən bu e-poçt admin olur.
+# Bu e-poçtla qeydiyyatdan keçən hesab admin panelini aktivləşdirə bilər (kodla).
 OWNER_EMAIL=$OWNER_EMAIL
 EOF
 elif [ -n "$OWNER_EMAIL" ]; then
   sed -i "s|^OWNER_EMAIL=.*|OWNER_EMAIL=$OWNER_EMAIL|" "$ENV"
 fi
-chmod 640 "$ENV"
+# E-poçt təsdiqlənmir: başqası sahibin e-poçtu ilə qeydiyyatdan keçsə belə, admin aktivləşdirməsi
+# yalnız bu serverdə saxlanan kodla mümkündür.
+if ! grep -q '^OWNER_SETUP_TOKEN=.' "$ENV"; then
+  sed -i '/^OWNER_SETUP_TOKEN=/d' "$ENV"
+  echo "OWNER_SETUP_TOKEN=$(head -c 24 /dev/urandom | od -An -tx1 | tr -d ' \n')" >> "$ENV"
+fi
+chown root:root "$ENV"
+chmod 600 "$ENV"
 
 cat > /etc/systemd/system/qepik.service <<EOF
 [Unit]
@@ -108,7 +115,19 @@ EnvironmentFile=$ENV
 ExecStart=/usr/bin/node scripts/server.mjs
 Restart=always
 RestartSec=3
+# Sandboxing: the service writes only to its checkout and the database directory.
 NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=full
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+RestrictNamespaces=true
+LockPersonality=true
+UMask=0027
 
 [Install]
 WantedBy=multi-user.target
@@ -117,7 +136,21 @@ EOF
 cat > /etc/caddy/Caddyfile <<EOF
 $DOMAIN, www.$DOMAIN {
 	encode zstd gzip
-	reverse_proxy 127.0.0.1:$PORT
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+		Content-Security-Policy "frame-ancestors 'none'; base-uri 'self'; object-src 'none'; form-action 'self'"
+		-Server
+		-X-Powered-By
+	}
+	# The app reads the client address from the last X-Forwarded-For entry, which Caddy appends;
+	# a client-sent X-Real-IP is replaced so it cannot be used to dodge rate limits either.
+	reverse_proxy 127.0.0.1:$PORT {
+		header_up X-Real-IP {remote_host}
+	}
 }
 EOF
 
@@ -138,6 +171,7 @@ for _ in $(seq 1 90); do
 done
 if curl -fsS "http://127.0.0.1:$PORT/api/v1/health" >/dev/null 2>&1; then
   say "Hazırdır: https://$DOMAIN  (DNS A qeydi bu serverin IP-sinə yönəlməlidir)"
+  echo "Admin aktivləşdirmə kodu (yalnız sizdə qalsın): $(sed -n 's/^OWNER_SETUP_TOKEN=//p' "$ENV")"
   echo "Loglar:     journalctl -u qepik -f"
   echo "Vəziyyət:   cd $APP && sudo -u qepik DATABASE_PATH=$DATA/qepik.sqlite node scripts/status.mjs"
   echo "Yeniləmək:  bu əmri yenidən işlədin."

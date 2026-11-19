@@ -300,6 +300,75 @@ export function extractWorldTelecom(html: string, url: string) {
   });
 }
 
+// bytelecom.az (Next.js, 2026-11 redesign): no JSON-LD or price meta tags; the product record is in
+// the React Server Components payload (self.__next_f.push). actual_price is what the buyer pays,
+// price the regular one; a product priced 0 is not on sale and is not imported.
+function nextFlightText(html: string) {
+  let text = "";
+  for (const m of html.matchAll(/self\.__next_f\.push\(\[1,("(?:[^"\\]|\\.)*")\]\)/g)) {
+    try {
+      text += JSON.parse(m[1]) as string;
+    } catch {}
+  }
+  return text;
+}
+// The JSON object starting at `start`, read with string-aware brace matching.
+function jsonObjectAt(text: string, start: number) {
+  let depth = 0,
+    inString = false;
+  for (let i = start; i < text.length && i - start < 200000; i++) {
+    const c = text[i];
+    if (inString) {
+      if (c === "\\") i++;
+      else if (c === '"') inString = false;
+    } else if (c === '"') inString = true;
+    else if (c === "{") depth++;
+    else if (c === "}" && --depth === 0) return JSON.parse(text.slice(start, i + 1));
+  }
+  throw new Error("Məhsul məlumatı yarımçıqdır.");
+}
+type BytelecomProduct = {
+  id: number;
+  slug: string;
+  title: string;
+  description?: string | null;
+  actual_price?: number;
+  price?: number;
+  stock?: number;
+  external_code?: string;
+  category?: { title?: string } | null;
+  brand?: { title?: string; name?: string } | null;
+  images?: { image?: string }[];
+  spec_attributes?: { title?: string; value?: string }[];
+};
+export function extractBytelecom(html: string, url: string): ScannedProduct {
+  const slug = decodeURIComponent(new URL(url).pathname.split("/").filter(Boolean).pop() || "");
+  const text = nextFlightText(html);
+  const at = text.indexOf('"slug":' + JSON.stringify(slug) + ',"title"');
+  const start = at < 0 ? -1 : text.lastIndexOf("{", at);
+  if (start < 0) throw new Error("AZN valyutalı tək məhsul qiyməti oxunmadı.");
+  const row = jsonObjectAt(text, start) as BytelecomProduct;
+  if (row.slug !== slug || !row.title) throw new Error("Məhsul məlumatı uyğun deyil.");
+  const price = Number(row.actual_price);
+  if (!(price > 0)) throw new Error("Məhsulun qiyməti yoxdur (satışda deyil).");
+  const regular = Number(row.price);
+  const specs: Record<string, string> = {};
+  for (const a of row.spec_attributes || [])
+    if (a?.title && a.value) specs[String(a.title).slice(0, 80)] = String(a.value).slice(0, 200);
+  return product({
+    name: row.title,
+    price: Math.round(price * 100) / 100,
+    oldPrice: regular > price ? regular : undefined,
+    sku: String(row.external_code || row.id || ""),
+    brand: row.brand?.title || row.brand?.name || undefined,
+    category: row.category?.title || undefined,
+    image: httpsUrl(row.images?.find((i) => i?.image)?.image, url),
+    description: clean(String(row.description || "")).slice(0, 1500),
+    specs,
+    stock: typeof row.stock === "number" ? row.stock > 0 : undefined,
+  });
+}
+
 // smeg.az (Tilda store): the title is only "colour + type" ("Yaşıl Soyuducu"); the model code is the
 // whole product description. The model becomes the SKU and is put in front of the title so the
 // product can be matched across stores.
@@ -318,11 +387,18 @@ export const productFixups: Record<string, (p: ScannedProduct) => ScannedProduct
 };
 
 // Readers by merchant host (without www.).
-export const htmlProductReaders: Record<string, (html: string, url: string) => ScannedProduct> = {
+// A reader may return null to leave the page to the generic JSON-LD/meta/microdata reader.
+export const htmlProductReaders: Record<
+  string,
+  (html: string, url: string) => ScannedProduct | null
+> = {
   "almali.az": extractAlmali,
   "okim.az": extractOkim,
   "eraelectronics.az": extractEra,
   "mobifon.az": extractMobifon,
   "bestel.az": extractBestel,
   "w-t.az": extractWorldTelecom,
+  // Pages from before the redesign carry product meta tags instead.
+  "bytelecom.az": (html, url) =>
+    /self\.__next_f\.push/.test(html) ? extractBytelecom(html, url) : null,
 };

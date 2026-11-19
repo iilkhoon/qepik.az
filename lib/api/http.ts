@@ -58,6 +58,12 @@ export function rateLimited(key: string, limit: number, windowMs = 60000, now = 
   return w.count > limit;
 }
 
+// True when `key` has already used up `limit` in its current window; does not count a request.
+export function rateLimitedPeek(key: string, limit: number, windowMs = 900000, now = Date.now()) {
+  const w = windows.get(key);
+  return !!w && now - w.start <= windowMs && w.count >= limit;
+}
+
 // Browsers always send Origin and/or Sec-Fetch-Site on cross-site writes; reject either signal.
 // Requests with neither header come from non-browser clients, which cannot ride the viewer's session.
 export function crossSite(req: Request, url: URL) {
@@ -65,6 +71,15 @@ export function crossSite(req: Request, url: URL) {
   if (origin && origin !== url.origin) return true;
   const site = req.headers.get("sec-fetch-site");
   return !!site && site !== "same-origin" && site !== "none";
+}
+
+// The client address as seen by the reverse proxy in front of the app. Caddy (deploy/install.sh)
+// appends the peer address as the last X-Forwarded-For entry; earlier entries and X-Real-IP come
+// from the client and can be forged, so they would let one client reset its own rate limits.
+export function clientIp(req: Request) {
+  const forwarded = req.headers.get("x-forwarded-for");
+  const last = forwarded?.split(",").pop()?.trim();
+  return last || "anonymous";
 }
 
 export const bareHost = (h: string) => h.toLowerCase().replace(/^www\./, "");

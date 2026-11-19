@@ -7,10 +7,10 @@ Azərbaycan mağazalarının qiymətlərini bir yerdə göstərən sayt. React 1
 Serverdə root kimi:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/iilkhoon/serfeli/claude/dreamy-bell-2exiww/deploy/install.sh | OWNER_EMAIL=sen@example.com bash
+curl -fsSL https://raw.githubusercontent.com/iilkhoon/qepik.az/<budaq>/deploy/install.sh | BRANCH=<budaq> OWNER_EMAIL=sen@example.com bash
 ```
 
-Skript köhnə quraşdırmanı və 80/443 portunu tutan xidmətləri (nginx, apache, pm2) dayandırır, Node 22 və Caddy qurur, saytı `/opt/qepik`-də build edir, bazanı `/var/lib/qepik`-də saxlayır və `https://qepik.az`-ı avtomatik sertifikatla açır. Yeniləmək üçün eyni əmri təkrar işlədin. Ətraflı: `docs/HANDOFF.md`.
+Skript köhnə quraşdırmanı və 80/443 portunu tutan xidmətləri (nginx, apache, pm2) dayandırır, Node 22 və Caddy qurur, saytı `/opt/qepik`-də build edir, bazanı `/var/lib/qepik`-də saxlayır və `https://qepik.az`-ı avtomatik sertifikatla açır. Yeniləmək üçün eyni əmri təkrar işlədin. Sonda göstərilən **admin aktivləşdirmə kodunu** saxlayın: `/admin` səhifəsində ilk aktivləşdirmə onu tələb edir (`/etc/qepik.env` → `OWNER_SETUP_TOKEN`). Ətraflı: `docs/HANDOFF.md`, təhlükəsizlik: `docs/SECURITY-AUDIT.md`.
 
 ## Serverdə əl ilə işə salmaq
 
@@ -25,7 +25,8 @@ OWNER_EMAIL=sen@example.com PORT=3000 npm start
 - Baza `data/qepik.sqlite` faylıdır (yolu `DATABASE_PATH` ilə dəyişmək olar). İlk işə düşəndə cədvəllər yaranır və layihədəki ilkin kataloq bazaya yazılır.
 - `npm start` saytla birlikdə planlayıcını da işə salır: mağaza idxalları hər dəqiqə irəliləyir, Technomania rəsmi feed-i saatda bir oxunur. İdxalı söndürmək üçün `CRAWL=off`.
 - `OWNER_EMAIL`: admin panelini (`/admin`) yalnız bu e-poçtla qeydiyyatdan keçən hesab aktivləşdirə bilər. Təyin edilməyibsə admin heç kimə açılmır.
-- Sayt HTTPS arxasında (nginx/Caddy) işləməlidir; proksi `X-Forwarded-Proto` və `X-Real-IP` başlıqlarını ötürməlidir ki, sessiya kukisi `Secure` olsun və sorğu limiti müştəri üzrə işləsin.
+- `OWNER_SETUP_TOKEN`: təyin edilibsə, aktivləşdirmə bu kodu da tələb edir. E-poçt təsdiqlənmədiyi üçün istehsalda mütləq təyin edin (məs. `openssl rand -hex 24`).
+- Sayt HTTPS arxasında (nginx/Caddy) işləməlidir; proksi `X-Forwarded-Proto` ötürməli və müştəri ünvanını `X-Forwarded-For`-un sonuna əlavə etməlidir (Caddy və nginx `$proxy_add_x_forwarded_for` bunu edir) ki, sessiya kukisi `Secure` olsun və sorğu limiti müştəri üzrə işləsin. Tətbiqi proksisiz internetə açmayın.
 - Vəziyyətə baxmaq: `node scripts/status.mjs` (bazadakı qeydlər və hər mağaza idxalının gedişi).
 - `seed/catalog.jsonl.gz`: toplanmış məhsul, təklif və qiymət tarixçəsinin snapshot-u. Yeni server onu ilk işə düşəndə bir dəfə yükləyir, sonra idxal işləri məlumatı özü yeniləyir. Yenidən yazmaq üçün: `node scripts/export-seed.mjs`.
 - Ehtiyat nüsxə: `data/` qovluğunu kopyalamaq kifayətdir.
@@ -45,6 +46,10 @@ Mağaza müraciəti (`/magaza-qeydiyyat`): şirkət adı, hüquqi ad və forma, 
 - `lib/extractor.ts`, `lib/html-products.ts`, `lib/irshad.ts`, `lib/listing-sources.ts`: məhsul səhifəsi və siyahı oxuyucuları. `robots.txt` qaydalarına əməl olunur; CAPTCHA və bot qoruması keçilmir.
 - `lib/feed-sync.ts`: Technomania rəsmi JSON feed-i.
 - `lib/product-matching.ts`: eyni modelin müxtəlif mağazalardakı təkliflərinin birləşdirilməsi.
+
+### Toplayıcı: bütün mağazaların bütün məhsulları
+
+`npm run crawl` bütün mağazaları paralel və qaldığı yerdən davam edərək tam oxuyur, nəticəni `data/crawl/` altında JSONL və saytın snapshot formatında saxlayır; `npm run crawl:import` onu saytın bazasına yazır. Ətraflı: `docs/CRAWLER.md`.
 
 Bot qoruması olan mağazalar (hazırda kontakt.az, mgstore.az, smartelectronics.az) avtomatik oxunmur; onlar üçün rəsmi feed və ya mağaza müraciəti lazımdır.
 

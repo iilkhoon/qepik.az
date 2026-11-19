@@ -5,6 +5,7 @@ export type Session = {
   user: { id: string; name: string; email: string; phone: string } | null;
   admin: boolean;
   needsSetup: boolean;
+  setupTokenRequired?: boolean;
 };
 
 export type Favorite = { productId: string; date: string };

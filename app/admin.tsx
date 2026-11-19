@@ -74,6 +74,7 @@ export default function Admin({
   act: Act;
   needUser: () => boolean;
 }) {
+  const [setupToken, setSetupToken] = useState("");
   const [view, setView] = useState("overview"),
     [rowLimit, setRowLimit] = useState(50),
     [data, setData] = useState<AdminData | null>(null),
@@ -249,11 +250,27 @@ export default function Admin({
             ? "İlk aktivləşdirmə daxil olduğun hesabı platforma sahibi kimi saxlayır və ilkin kataloqu məlumat bazasına yazır. Öz sahib hesabınla daxil olduğunu yoxla. Bu əməliyyatdan sonra admin hesabı buradan dəyişdirilə bilməz."
             : "Bu panel yalnız əvvəlcədən təyin edilmiş platforma sahibinə açıqdır."}
         </p>
+        {session.needsSetup && session.setupTokenRequired && (
+          <label className="setup-token">
+            Aktivləşdirmə kodu (serverdə <code>/etc/qepik.env</code> faylında, OWNER_SETUP_TOKEN)
+            <input
+              type="password"
+              autoComplete="off"
+              value={setupToken}
+              onChange={(e) => setSetupToken(e.target.value)}
+            />
+          </label>
+        )}
         {session.needsSetup && (
           <button
             className="dark-button"
-            disabled={busy}
-            onClick={() => mutation(() => api("bootstrap", {}), "Platforma aktivləşdirildi.")}
+            disabled={busy || (!!session.setupTokenRequired && !setupToken.trim())}
+            onClick={() =>
+              mutation(
+                () => api("bootstrap", { token: setupToken.trim() }),
+                "Platforma aktivləşdirildi.",
+              )
+            }
           >
             <Database size={18} />
             {busy ? "Hazırlanır…" : "Admin panelini aktivləşdir"}

@@ -36,9 +36,11 @@ import {
   ApiError,
   MAX_BODY,
   bareHost,
+  clientIp,
   crossSite,
   errorResponse,
   rateLimited,
+  rateLimitedPeek,
   readJson,
 } from "../../../../lib/api/http";
 import { id, offer, saveRequest } from "../../../../lib/api/schemas";
@@ -53,6 +55,7 @@ import {
   statement,
 } from "../../../../lib/api/records";
 import { z } from "zod";
+import { createHash, timingSafeEqual } from "node:crypto";
 export const dynamic = "force-dynamic";
 
 const json = (v: unknown, status = 200) =>
@@ -61,11 +64,7 @@ const json = (v: unknown, status = 200) =>
     headers: { "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" },
   });
 
-const clientKey = (req: Request, user: User | null) =>
-  user?.userId ||
-  req.headers.get("x-real-ip") ||
-  req.headers.get("x-forwarded-for")?.split(",")[0].trim() ||
-  "anonymous";
+const clientKey = (req: Request, user: User | null) => user?.userId || clientIp(req);
 const tooMany = () =>
   Response.json(
     { error: "Çox sayda sorğu. Bir az sonra yenidən cəhd edin." },
@@ -79,10 +78,30 @@ function mayClaimOwner(user: User) {
   return !!allowed && user.email.trim().toLowerCase() === allowed;
 }
 
-async function bootstrap(user: User) {
+// Registration is open and e-mail addresses are not verified, so anyone could register the owner's
+// address before the owner does. When OWNER_SETUP_TOKEN is set (deploy/install.sh generates one
+// and shows it only on the server), claiming the owner slot also needs that code.
+function setupTokenMatches(given: unknown) {
+  const expected = process.env.OWNER_SETUP_TOKEN?.trim();
+  if (!expected) return true;
+  if (typeof given !== "string") return false;
+  const a = createHash("sha256").update(given.trim()).digest();
+  const b = createHash("sha256").update(expected).digest();
+  return timingSafeEqual(a, b);
+}
+
+async function bootstrap(req: Request, user: User) {
   // An existing owner can never be replaced here.
-  if (!(await ownerId()) && !mayClaimOwner(user))
+  const owner = await ownerId();
+  if (!owner && !mayClaimOwner(user))
     return json({ error: "Bu hesab platforma sahibi kimi təyin edilə bilməz." }, 403);
+  if (!owner) {
+    const body = z
+      .object({ token: z.string().max(200).optional() })
+      .parse(await readJson(req).catch(() => ({})));
+    if (!setupTokenMatches(body.token))
+      return json({ error: "Aktivləşdirmə kodu yanlışdır." }, 403);
+  }
   await db()
     .prepare(
       "INSERT OR IGNORE INTO records (id,kind,payload,updated_at) VALUES ('system:owner','system',?,?)",
@@ -299,7 +318,7 @@ async function registerPost(req: Request) {
       phone: phone.optional().or(z.literal("").transform(() => undefined)),
       city: z.enum(AZ_CITIES).optional(),
       password,
-      terms: z.literal(true, { errorMap: () => ({ message: "Şərtləri qəbul et" }) }),
+      terms: z.literal(true, { message: "Şərtləri qəbul et" }),
     })
     .parse(await readJson(req));
   const account = await createAccount(b);
@@ -311,8 +330,17 @@ async function loginPost(req: Request) {
   const b = z
     .object({ email: z.string().email().max(200), password: z.string().min(1).max(200) })
     .parse(await readJson(req));
+  // Per-account limit as well as per-address: guessing one account's password from many
+  // addresses is slowed down too. Only failed attempts count; the key exists for any e-mail, so
+  // the answer does not reveal whether an account exists.
+  const failKey = "login-fail:" + b.email.trim().toLowerCase();
+  if (rateLimitedPeek(failKey, 10))
+    throw new ApiError(429, "Çox sayda uğursuz cəhd. 15 dəqiqə sonra yenidən yoxla.");
   const account = await checkCredentials(b.email, b.password);
-  if (!account) throw new ApiError(401, "E-poçt və ya şifrə yanlışdır.");
+  if (!account) {
+    rateLimited(failKey, 10, 900000);
+    throw new ApiError(401, "E-poçt və ya şifrə yanlışdır.");
+  }
   return withSession(req, await startSession(account.id), { ok: true });
 }
 
@@ -670,6 +698,7 @@ async function route(req: Request): Promise<Response> {
         : null,
       admin: !!user && owner === user.userId,
       needsSetup: !owner && !!user && mayClaimOwner(user),
+      setupTokenRequired: !owner && !!process.env.OWNER_SETUP_TOKEN?.trim(),
     });
   }
   if (path === "personal" && method === "GET") return personalGet(user);
@@ -677,7 +706,7 @@ async function route(req: Request): Promise<Response> {
   if (path === "applications/mine" && method === "GET")
     return user ? applicationsMine(user) : json({ applications: [] });
   if (method === "POST" && user) {
-    if (path === "bootstrap") return bootstrap(user);
+    if (path === "bootstrap") return bootstrap(req, user);
     if (path === "personal") return personalPost(req, user);
     if (path === "reviews") return reviewPost(req, user);
     if (path === "applications") return applicationPost(req, user);

@@ -31,7 +31,7 @@ export const product = z.object({
   image: z
     .string()
     .refine((v) => v.startsWith("https://") || (v.startsWith("/") && !v.startsWith("//"))),
-  specs: z.record(z.string().max(200)),
+  specs: z.record(z.string(), z.string().max(200)),
   description: z.string().max(3000),
   active: z.boolean(),
   featured: z.boolean(),
