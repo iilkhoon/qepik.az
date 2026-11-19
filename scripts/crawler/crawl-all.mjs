@@ -313,12 +313,10 @@ class SourceCrawler {
       this.state.productUrls.push(u);
     }
   }
-  // Retries network errors and 5xx with backoff; 401/403/429-without-wait and bot challenges stop
-  // the source (never bypassed).
-  // A 403/429 after the store has already answered this run is read as "too fast": the source
-  // pauses (COOLDOWN_MS), halves its own request rate and tries again, at most COOLDOWNS times per
-  // run. A 403/401 on the first request and every bot challenge stop the source at once; access
-  // checks are never bypassed.
+  // Retries network errors and 5xx with backoff. A 429, or a 403 after the store has already
+  // answered this run, is read as "too fast": the source pauses (COOLDOWN_MS), halves its own
+  // request rate and tries again, at most COOLDOWNS times per run. A 403/401 on the first request
+  // and every bot challenge stop the source at once; access checks are never bypassed.
   async withRetry(url, fn) {
     for (let attempt = 0; ; attempt++) {
       try {
@@ -332,7 +330,7 @@ class SourceCrawler {
         if (
           refused &&
           access.status !== 401 &&
-          this.okThisRun > 0 &&
+          (access.status === 429 || this.okThisRun > 0) &&
           this.cooldowns < COOLDOWNS &&
           access.retryAfterMs <= COOLDOWN_MS &&
           !stopping
