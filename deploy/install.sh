@@ -71,6 +71,8 @@ say "Kod yüklənir ($BRANCH)"
 if [ -d "$APP/.git" ]; then
   # The checkout belongs to the qepik user; let root's git work in it.
   G=(git -c safe.directory="$APP" -C "$APP")
+  # An older install may still point at the repository's previous name.
+  "${G[@]}" remote set-url origin "$REPO"
   "${G[@]}" fetch --depth 1 origin "$BRANCH"
   "${G[@]}" reset --hard FETCH_HEAD
   "${G[@]}" clean -fdx -e node_modules
@@ -230,6 +232,8 @@ if curl -fsS "http://127.0.0.1:$PORT/api/v1/health" >/dev/null 2>&1; then
   echo "Vəziyyət:   cd $APP && sudo -u qepik DATABASE_PATH=$DATA/qepik.sqlite node scripts/status.mjs"
   echo "Yeniləmək:  bu əmri yenidən işlədin."
 else
-  echo "Sayt cavab vermir. Loga baxın: journalctl -u qepik -n 100"
+  echo "Sayt cavab vermir. Son loglar:"
+  systemctl status qepik --no-pager -l | head -20 || true
+  journalctl -u qepik -n 60 --no-pager || true
   exit 1
 fi
