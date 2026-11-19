@@ -24,10 +24,24 @@ Ctrl+C vəziyyəti saxlayıb çıxır; növbəti `npm run crawl` həmin yerdən 
 Serverdə gecəlik tam yeniləmə üçün (məsələn, `crontab -u qepik -e`):
 
 ```text
-15 3 * * * cd /opt/qepik && npm run crawl -- --out /var/lib/qepik/crawl --max-minutes 300 --quiet && DATABASE_PATH=/var/lib/qepik/qepik.sqlite npm run crawl:import -- --out /var/lib/qepik/crawl
+15 3 * * * cd /opt/qepik && npm run crawl -- --out /var/lib/qepik/crawl --max-minutes 300 --quiet; npm run crawl:did -- --out /var/lib/qepik/crawl; DATABASE_PATH=/var/lib/qepik/qepik.sqlite npm run crawl:import -- --out /var/lib/qepik/crawl
 ```
 
 `deploy/install.sh` yeniləmədə `/opt/qepik` qovluğunu təmizlədiyi üçün serverdə nəticələri `--out /var/lib/qepik/crawl` ilə verilənlər qovluğunda saxlayın.
+
+## did.az təklifləri (`npm run crawl:did`)
+
+Saytını oxuya bilmədiyimiz (bot yoxlaması) və ya çox yavaş oxuduğumuz (Crawl-delay) mağazaların təklifləri did.az-ın açıq kataloq API-sindən götürülür. did.az robots.txt-i `/api`-yə icazə verir, `llms.txt` və `ai-catalog.json` ilə kataloqu agentlər üçün açıq elan edir. Sorğular bir-bir, 1,5 s fasilə ilə gedir (~110 sorğu, ~3 dəqiqə).
+
+```bash
+npm run crawl:did                               # Kontakt, Birmarket, Music Gallery, Smart Electronics, Elit Optimal, Barkod, MyShops, Playroom, İrşad, Smarton, SeeHome
+npm run crawl:did -- --stores kontakt,irshad    # seçilmiş mağazalar
+npm run crawl:did -- --list                     # did.az-dakı mağazalar və bizdəki vəziyyəti
+```
+
+- Hər təklif mağazanın öz məhsul linki, nağd qiyməti, köhnə qiyməti və stoku ilə yazılır. Linki mağaza domenində olmayan, AZN olmayan sətir buraxılır. did.az şəkilləri kopyalanmır.
+- 2026-11-19 sınağı: 11 mağazadan 49 578 təklif. Öz oxuduğumuz səhifələrlə ortaq 711 məhsulun qiyməti 100% eynidir.
+- `crawl:import` hər mağaza üçün bir mənbə seçir: mağazanın faylı → öz saytının tam oxunuşu → did.az → yarımçıq oxunuş.
 
 ## Mağazanın göndərdiyi fayl (`npm run crawl:file`)
 

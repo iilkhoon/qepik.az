@@ -451,8 +451,15 @@ export function catalogSlice(c: Catalog, q: CatalogQuery): CatalogSlice {
   for (const id of (q.ids || []).slice(0, MAX_IDS)) add(id);
   const products = [...chosen.values()];
   const pick = <T>(map: Map<string, T[]>) => products.flatMap((p) => map.get(p.id) || []);
+  // The full alias map grows with every merged duplicate (megabytes on a large catalog); the
+  // browser only needs it to re-point the ids it asked for (comparison list, alerts).
+  const productAliases: Record<string, string> = {};
+  for (const id of (q.ids || []).slice(0, MAX_IDS))
+    if (c.productAliases && Object.hasOwn(c.productAliases, id))
+      productAliases[id] = canonicalProductId(c, id);
   return {
     ...c,
+    productAliases,
     products,
     offers: pick(x.offers),
     history: pick(x.history),

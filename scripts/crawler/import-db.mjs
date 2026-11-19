@@ -23,29 +23,42 @@ const { values: args } = parseArgs({
 const OUT = path.resolve(args.out);
 const dbFile = process.env.DATABASE_PATH || path.join("data", "qepik.sqlite");
 const only = args.only ? new Set(args.only.split(",")) : null;
-// Catalogs a store sent as a file (npm run crawl:file, <out>/files/<store>/) replace the crawled
-// pages of that store.
-const fileStores = fs.existsSync(path.join(OUT, "files"))
-  ? fs
-      .readdirSync(path.join(OUT, "files"))
-      .filter((id) => fs.existsSync(path.join(OUT, "files", id, "items.jsonl")))
-  : [];
-const sources = [
+// One reading per store, in this order: the store's own file (npm run crawl:file, <out>/files/),
+// a complete crawl of its site (<out>/<store>/), did.az offers (npm run crawl:did, <out>/did/),
+// and last a crawl still in progress.
+const readState = (dir) => {
+  try {
+    return JSON.parse(fs.readFileSync(path.join(dir, "state.json"), "utf8"));
+  } catch {
+    return null;
+  }
+};
+const candidates = new Map();
+const offer = (id, name, dir, rank, extra = {}) => {
+  if (!fs.existsSync(path.join(dir, "items.jsonl")) || !readState(dir)) return;
+  const prev = candidates.get(id);
+  if (!prev || rank < prev.rank) candidates.set(id, { id, name, dir, rank, ...extra });
+};
+for (const s of [
   ...crawlSources,
   ...(crawlSources.some((s) => s.id === "technomania")
     ? []
     : [{ id: "technomania", name: "Technomania", listing: true }]),
-]
-  .filter((s) => !fileStores.includes(s.id))
-  .map((s) => ({ ...s, dir: path.join(OUT, s.id) }))
-  .concat(
-    fileStores.map((id) => {
-      const dir = path.join(OUT, "files", id);
-      const st = JSON.parse(fs.readFileSync(path.join(dir, "state.json"), "utf8"));
-      return { id, name: st.storeName || id, dir };
-    }),
-  )
-  .filter((s) => (!only || only.has(s.id)) && fs.existsSync(path.join(s.dir, "items.jsonl")));
+]) {
+  const dir = path.join(OUT, s.id);
+  offer(s.id, s.name, dir, readState(dir)?.status === "complete" ? 1 : 3, s);
+}
+for (const [sub, rank] of [
+  ["files", 0],
+  ["did", 2],
+])
+  if (fs.existsSync(path.join(OUT, sub)))
+    for (const id of fs.readdirSync(path.join(OUT, sub))) {
+      const dir = path.join(OUT, sub, id);
+      if (fs.statSync(dir).isDirectory()) offer(id, readState(dir)?.storeName || id, dir, rank);
+    }
+const origin = ["fayl", "sayt", "did.az", "sayt (yarımçıq)"];
+const sources = [...candidates.values()].filter((s) => !only || only.has(s.id));
 if (!sources.length) {
   console.log("İdxal ediləcək nəticə yoxdur. Əvvəlcə `npm run crawl` işlədin.");
   process.exit(0);
@@ -135,7 +148,7 @@ for (const source of sources) {
   grandProducts += products;
   grandOffers += offers;
   console.log(
-    `${source.id.padEnd(17)} ${state.status.padEnd(11)} məhsul ${String(products).padStart(6)}  təklif ${String(offers).padStart(6)}  tarixçə ${String(history).padStart(6)}  naməlum stoka keçdi ${expired}`,
+    `${source.id.padEnd(17)} ${origin[source.rank].padEnd(15)} ${state.status.padEnd(11)} məhsul ${String(products).padStart(6)}  təklif ${String(offers).padStart(6)}  tarixçə ${String(history).padStart(6)}  naməlum stoka keçdi ${expired}`,
   );
 }
 console.log(
