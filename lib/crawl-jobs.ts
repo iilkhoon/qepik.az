@@ -333,7 +333,7 @@ async function productStatements(
     category:
       known?.product?.category ||
       // A single lowercase word is already a storefront category id; other text is a source path.
-      (source.listing && !/^[a-z]+$/.test(rich.category || "")
+      (!/^[a-z]+$/.test(rich.category || "")
         ? categoryOf(rich.name + " " + (rich.category || ""))
         : rich.category) ||
       categoryOf(rich.name),

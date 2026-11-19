@@ -75,7 +75,7 @@ export async function recordsForRow(row, source) {
     ),
     category:
       known?.product?.category ||
-      (source.listing && !/^[a-z]+$/.test(row.category || "")
+      (!/^[a-z]+$/.test(row.category || "")
         ? categoryOf(row.name + " " + (row.category || ""))
         : row.category) ||
       categoryOf(row.name),
