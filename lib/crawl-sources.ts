@@ -53,7 +53,14 @@ export const crawlSources: {
     root: "https://mgstore.az/media/sitemap/sitemap_az.xml",
     refreshHours: 72,
   },
-  { id: "soliton", name: "Soliton", root: "https://soliton.az/sitemap.xml", refreshHours: 72 },
+  // robots.txt points to sitemap-index.xml (products by section + out of stock, checked
+  // 2026-11-19); the old sitemap.xml is a 2025 crawl with 56 pages.
+  {
+    id: "soliton",
+    name: "Soliton",
+    root: "https://soliton.az/sitemap-index.xml",
+    refreshHours: 72,
+  },
   // WordPress sitemap: products are /<slug>.html pages with Product JSON-LD.
   { id: "icomp", name: "iComp", root: "https://icomp.az/sitemap.xml", refreshHours: 24 },
   {
@@ -166,7 +173,8 @@ const productPaths: Record<string, RegExp> = {
   ultrastore: /^\/[^/]+-az$/,
   eraelectronics: /^\/[^/]+\/$/,
   // The canonical product URL is one segment; the sitemap repeats it under category paths.
-  okim: /^\/[^/]+$/,
+  // "/-16"-style entries are empty pages.
+  okim: /^\/(?!-\d*$)[^/]+$/,
   smeg: /^\/[^/]+\/tproduct\/\d+-[^/]+$/,
   texnohome: /^\/az\/product\/[^/]+$/,
   telehome: /^\/az\/mehsul\/[^/]+$/,

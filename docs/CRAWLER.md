@@ -52,6 +52,7 @@ Serverdə gecəlik tam yeniləmə üçün (məsələn, `crontab -u qepik -e`):
 - Yalnız `docs/local-merchants.json`-dakı mağaza domenlərinə HTTPS; başqa domenə yönləndirmə rədd edilir.
 - robots.txt hər origin üçün oxunur; `Disallow` olan ünvan oxunmur, `Crawl-delay` saxlanılır (İrşad, Smarton: 30 s). Hər hosta eyni anda bir sorğu, ən az 1 s fasilə.
 - Cloudflare/DDoS-Guard bot yoxlaması və ilk sorğuda 401/403 mənbəni dərhal dayandırır; yoxlamadan yan keçilmir. Hazırda belə olanlar: Smart Electronics, Music Gallery (2026-11-19), Kontakt, Birmarket, Elit Optimal. Bunlar üçün mağazadan rəsmi feed/icazə lazımdır.
+- İş zamanı 403 gələndə əvvəlcə son uğurlu səhifə yenidən yoxlanır; o açılırsa, 403 yalnız həmin ünvana aiddir (Okim sitemap-indəki boşluqlu adlar) və ünvan xəta kimi yazılır.
 - İş zamanı (mağaza artıq cavab verdikdən sonra) gələn 403/429 sürət limiti sayılır: mənbə 10 dəqiqə gözləyir, öz sorğu tempini iki dəfə azaldır və davam edir (bir işdə ən çox 3 dəfə). Retry-After nəzərə alınır.
 - 5xx və şəbəkə xətası artan fasilə ilə 5 dəfəyə qədər təkrarlanır.
 - Qiyməti 0 olan, AZN olmayan, adı olmayan səhifə idxal edilmir; üstündən xətt çəkilmiş qiymət heç vaxt təklif qiyməti olmur; naməlum stok “stokda” göstərilmir.

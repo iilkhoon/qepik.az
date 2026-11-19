@@ -322,11 +322,21 @@ class SourceCrawler {
       try {
         const value = await fn();
         this.okThisRun++;
+        this.lastOkUrl = url;
         if (this.extraDelayMs) await sleep(this.extraDelayMs);
         return value;
       } catch (e) {
         const access = e instanceof SourceAccessError ? e : null;
         const refused = access && [401, 403, 429].includes(access.status) && !access.challenge;
+        // Some stores answer 403 for single malformed URLs from their own sitemap (okim.az: names
+        // with spaces). If a page that just worked still opens, only this URL is refused.
+        if (refused && access.status === 403 && this.lastOkUrl && this.lastOkUrl !== url) {
+          const stillOpen = await merchantPage(this.lastOkUrl).then(
+            () => true,
+            () => false,
+          );
+          if (stillOpen) throw new Error("Mağaza bu ünvanı qəbul etmədi (HTTP 403).");
+        }
         if (
           refused &&
           access.status !== 401 &&
