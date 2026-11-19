@@ -6,14 +6,15 @@
 # Optional settings, put before `bash`:  DOMAIN=qepik.az OWNER_EMAIL=you@example.com
 # What it does: removes an old Qəpik install and anything holding ports 80/443 (nginx, apache,
 # pm2), installs Node 22 + Caddy, builds the site into /opt/qepik, keeps the database in
-# /var/lib/qepik, runs it as the `qepik` systemd service and serves https://DOMAIN.
+# /var/lib/qepik, runs it as the `qepik` systemd service and serves https://DOMAIN. The catalog
+# is refreshed nightly by qepik-crawl.timer (deploy/refresh-catalog.sh) and once right after install.
 # Running it again is safe: it updates the code and keeps the database.
 set -euo pipefail
 
 DOMAIN="${DOMAIN:-qepik.az}"
 OWNER_EMAIL="${OWNER_EMAIL:-}"
 REPO="${REPO:-https://github.com/iilkhoon/qepik.az.git}"
-BRANCH="${BRANCH:-claude/dreamy-bell-2exiww}"
+BRANCH="${BRANCH:-claude/charming-allen-upp6xv}"
 APP=/opt/qepik
 DATA=/var/lib/qepik
 PORT=3000
@@ -133,6 +134,48 @@ UMask=0027
 WantedBy=multi-user.target
 EOF
 
+# Catalog refresh: did.az offers + the stores' own sites, nightly at 03:15 and after each install.
+cat > /etc/systemd/system/qepik-crawl.service <<EOF
+[Unit]
+Description=Qəpik kataloq yeniləməsi
+After=network-online.target qepik.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=qepik
+WorkingDirectory=$APP
+EnvironmentFile=$ENV
+Environment=CRAWL_OUT=$DATA/crawl
+ExecStart=/bin/bash $APP/deploy/refresh-catalog.sh
+TimeoutStartSec=7h
+Nice=10
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=full
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+RestrictNamespaces=true
+LockPersonality=true
+UMask=0027
+EOF
+cat > /etc/systemd/system/qepik-crawl.timer <<EOF
+[Unit]
+Description=Qəpik kataloq yeniləməsi (gecəlik)
+
+[Timer]
+OnCalendar=*-*-* 03:15
+RandomizedDelaySec=10min
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+EOF
+
 cat > /etc/caddy/Caddyfile <<EOF
 $DOMAIN, www.$DOMAIN {
 	encode zstd gzip
@@ -164,6 +207,7 @@ systemctl enable --now qepik
 systemctl restart qepik
 systemctl enable caddy
 systemctl restart caddy
+systemctl enable --now qepik-crawl.timer
 
 for _ in $(seq 1 90); do
   if curl -fsS "http://127.0.0.1:$PORT/api/v1/health" >/dev/null 2>&1; then break; fi
@@ -172,6 +216,9 @@ done
 if curl -fsS "http://127.0.0.1:$PORT/api/v1/health" >/dev/null 2>&1; then
   say "Hazırdır: https://$DOMAIN  (DNS A qeydi bu serverin IP-sinə yönəlməlidir)"
   echo "Admin aktivləşdirmə kodu (yalnız sizdə qalsın): $(sed -n 's/^OWNER_SETUP_TOKEN=//p' "$ENV")"
+  # First catalog refresh now, in the background (did.az in a few minutes, store sites for hours).
+  systemctl start --no-block qepik-crawl.service
+  echo "Kataloq yeniləməsi başladı (did.az ~5 dəq, mağaza saytları bir neçə saat): journalctl -u qepik-crawl -f"
   echo "Loglar:     journalctl -u qepik -f"
   echo "Vəziyyət:   cd $APP && sudo -u qepik DATABASE_PATH=$DATA/qepik.sqlite node scripts/status.mjs"
   echo "Yeniləmək:  bu əmri yenidən işlədin."

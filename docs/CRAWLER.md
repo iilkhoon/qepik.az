@@ -21,11 +21,7 @@ node scripts/export-seed.mjs               # bazanı seed/catalog.jsonl.gz snaps
 
 Ctrl+C vəziyyəti saxlayıb çıxır; növbəti `npm run crawl` həmin yerdən davam edir. Bitmiş mağaza növbəti işdə yenidən oxunur (qiymətlər təzələnir).
 
-Serverdə gecəlik tam yeniləmə üçün (məsələn, `crontab -u qepik -e`):
-
-```text
-15 3 * * * cd /opt/qepik && npm run crawl -- --out /var/lib/qepik/crawl --max-minutes 300 --quiet; npm run crawl:did -- --out /var/lib/qepik/crawl; DATABASE_PATH=/var/lib/qepik/qepik.sqlite npm run crawl:import -- --out /var/lib/qepik/crawl
-```
+Serverdə `deploy/install.sh` bunu özü qurur: `qepik-crawl.timer` hər gecə 03:15-də `deploy/refresh-catalog.sh`-ı işlədir (did.az → idxal → mağaza saytları ən çox 300 dəqiqə → idxal), quraşdırmadan dərhal sonra da bir dəfə başladır. Əl ilə: `systemctl start qepik-crawl`, log: `journalctl -u qepik-crawl -f`.
 
 `deploy/install.sh` yeniləmədə `/opt/qepik` qovluğunu təmizlədiyi üçün serverdə nəticələri `--out /var/lib/qepik/crawl` ilə verilənlər qovluğunda saxlayın.
 
